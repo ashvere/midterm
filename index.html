@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfoAssurance v3.0 — Multi-Module Platform</title>
+<style>
+    /* ===== NEUMORPHIC BASE ===== */
+    :root {
+        --surface: #E8E4DC; --surface-alt: #EDE9E1; --surface-deep: #DED9D0;
+        --text-dark: #3A332C; --text-muted: #7A7168; --text-light: #F5F2EC;
+        --accent-maroon: #6B1D2F; --accent-maroon-hover: #85263d; --accent-gold: #C89B5C;
+        --success: #6B9B7A; --success-deep: #4A7C59;
+        --danger: #C07070; --danger-deep: #A33B3B;
+        --warning: #D4A373; --warning-deep: #C77B30;
+        --info: #7A8FA8; --info-deep: #4F6380;
+        --shadow-light: rgba(255,255,255,0.85);
+        --shadow-dark: rgba(163,155,143,0.55);
+        --shadow-out: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+        --shadow-out-sm: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+        --shadow-out-lg: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+        --shadow-in: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+        --shadow-in-sm: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+        --r-lg: 22px; --r-md: 16px; --r-sm: 12px; --r-xs: 8px;
+        --kitsune-fur: #D8A876; --kitsune-fur-dark: #B8885A;
+        --kitsune-white: #FFF5E8; --kitsune-nose: #3A332C;
+        --heat-1: #C6D9C0; --heat-2: #D9DFB8; --heat-3: #E8D9A8;
+        --heat-4: #E8C08A; --heat-5: #D9A87A; --heat-6: #C99080; --heat-7: #B87A72;
+    }
+    [data-theme="dark"] {
+        --surface: #2A2521; --surface-alt: #302A26; --surface-deep: #241F1B;
+        --text-dark: #E8E1D8; --text-muted: #9A9086; --text-light: #2A2521;
+        --accent-maroon: #C99AA8; --accent-maroon-hover: #DDB0BE; --accent-gold: #D4A373;
+        --success: #7DB88D; --success-deep: #5A9B6E;
+        --danger: #D08080; --danger-deep: #B05050;
+        --warning: #E0B080; --warning-deep: #C88A50;
+        --info: #90A8C0; --info-deep: #7A94B0;
+        --shadow-light: rgba(60,52,46,0.5); --shadow-dark: rgba(10,8,6,0.75);
+        --kitsune-fur: #A8885A; --kitsune-fur-dark: #8A6C48;
+        --kitsune-white: #E8E1D8; --kitsune-nose: #E8E1D8;
+        --heat-1: #3E5238; --heat-2: #4A5030; --heat-3: #5A5030;
+        --heat-4: #6A5030; --heat-5: #704030; --heat-6: #703830; --heat-7: #602A2A;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; }
+    body {
+        background: var(--surface); color: var(--text-dark);
+        height: 100vh; display: flex; flex-direction: column;
+        padding: 16px; gap: 14px; overflow: hidden; transition: background 0.35s, color 0.35s;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+        background: var(--surface); color: var(--text-dark); border: none;
+        padding: 10px 16px; border-radius: var(--r-md); cursor: pointer;
+        font-weight: 700; font-size: 13px; box-shadow: var(--shadow-out-sm);
+        transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+        font-family: inherit; white-space: nowrap;
+    }
+    .btn:hover:not(:disabled) { box-shadow: var(--shadow-out); transform: translateY(-1px); }
+    .btn:active:not(:disabled) { box-shadow: var(--shadow-in); transform: translateY(0); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: var(--shadow-in-sm); }
+    .btn-primary { background: var(--accent-maroon); color: var(--text-light); }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-maroon-hover); }
+    .btn-accent { background: var(--accent-gold); color: var(--text-dark); }
+    .btn-success { background: var(--success); color: var(--text-light); }
+    .btn-danger { background: var(--danger); color: var(--text-light); }
+    .btn-icon { padding: 9px 11px; font-size: 16px; min-width: 40px; height: 40px; justify-content: center; }
+    .btn-small { padding: 6px 10px; font-size: 11px; border-radius: var(--r-xs); }
+    .btn-tiny { padding: 4px 8px; font-size: 10px; border-radius: 6px; }
+
+    /* ===== TOP NAV ===== */
+    .top-nav {
+        background: var(--surface); padding: 10px 18px;
+        border-radius: var(--r-lg);
+        display: flex; justify-content: space-between; align-items: center;
+        box-shadow: var(--shadow-out); flex-wrap: wrap; gap: 10px;
+    }
+    .logo-area { font-size: 17px; display: flex; align-items: center; gap: 10px; font-weight: 800; }
+    .logo-icon {
+        background: var(--accent-maroon); color: var(--text-light);
+        padding: 7px 12px; border-radius: var(--r-sm); font-weight: 900;
+        box-shadow: var(--shadow-out-sm); letter-spacing: 0.5px; font-size: 14px;
+    }
+    .nav-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .timer {
+        background: var(--surface); color: var(--accent-maroon);
+        padding: 9px 16px; border-radius: var(--r-sm);
+        font-weight: 900; font-size: 14px; box-shadow: var(--shadow-in);
+        font-variant-numeric: tabular-nums; min-width: 90px; text-align: center;
+    }
+    .timer.warning { color: var(--warning-deep); animation: pulse 1s infinite; }
+    .timer.danger { color: var(--danger-deep); animation: pulse 0.6s infinite; }
+    @keyframes pulse { 50% { opacity: 0.6; } }
+
+    .notif-bell-wrap { position: relative; }
+    .notif-badge {
+        position: absolute; top: -5px; right: -5px;
+        background: var(--danger); color: white;
+        border-radius: 10px; min-width: 20px; height: 20px;
+        font-size: 10px; font-weight: 900;
+        display: none; align-items: center; justify-content: center;
+        padding: 0 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        animation: badgePop 0.3s ease-out; border: 2px solid var(--surface);
+    }
+    .notif-badge.show { display: flex; }
+    @keyframes badgePop { 0% { transform: scale(0); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+    /* ===== LAYOUT ===== */
+    .app-container { display: flex; flex: 1; gap: 14px; overflow: hidden; }
+
+    /* ===== SIDEBAR (modules + teams) ===== */
+    .sidebar {
+        width: 290px; background: var(--surface);
+        border-radius: var(--r-lg); padding: 16px;
+        display: flex; flex-direction: column; gap: 14px;
+        box-shadow: var(--shadow-out); min-width: 250px; overflow-y: auto;
+    }
+    .section-title {
+        font-size: 11px; font-weight: 800; text-transform: uppercase;
+        color: var(--text-muted); letter-spacing: 1px;
+    }
+    .module-nav { display: flex; flex-direction: column; gap: 8px; }
+    .module-btn {
+        background: var(--surface); color: var(--text-dark); border: none;
+        padding: 11px 14px; border-radius: var(--r-md); cursor: pointer;
+        font-weight: 700; font-size: 12.5px; box-shadow: var(--shadow-out-sm);
+        transition: 0.2s; display: flex; align-items: center; gap: 10px;
+        text-align: left;
+    }
+    .module-btn:hover { box-shadow: var(--shadow-out); }
+    .module-btn.active {
+        box-shadow: var(--shadow-in); background: var(--surface-alt);
+        color: var(--accent-maroon);
+    }
+    .module-btn .mod-icon { font-size: 18px; }
+    .module-btn .mod-meta { margin-left: auto; font-size: 10px; font-weight: 800;
+        color: var(--text-muted); background: var(--surface); padding: 3px 7px;
+        border-radius: 8px; box-shadow: var(--shadow-in-sm);
+    }
+    .module-btn.active .mod-meta { color: var(--accent-maroon); }
+
+    .team-input-group { display: flex; gap: 6px; }
+    .team-input-group input, .field-input {
+        flex: 1; padding: 10px 12px; background: var(--surface); border: none;
+        border-radius: var(--r-sm); color: var(--text-dark);
+        font-weight: 600; font-size: 12.5px; outline: none;
+        box-shadow: var(--shadow-in); transition: 0.2s; min-width: 0;
+    }
+    .team-input-group input::placeholder, .field-input::placeholder { color: var(--text-muted); opacity: 0.7; }
+    .team-input-group input:focus, .field-input:focus { box-shadow: var(--shadow-in), 0 0 0 2px var(--accent-gold); }
+
+    .team-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; padding: 3px; }
+    .team-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 10px 12px; border-radius: var(--r-md);
+        background: var(--surface); box-shadow: var(--shadow-out-sm);
+        transition: 0.2s; gap: 8px;
+    }
+    .team-item.active { box-shadow: var(--shadow-in); background: var(--surface-alt); }
+    .team-item.disabled { opacity: 0.5; }
+    .team-color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; box-shadow: var(--shadow-out-sm); }
+    .team-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+    .team-name { font-weight: 800; font-size: 12px; color: var(--text-dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .team-score { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+    .team-actions { display: flex; gap: 3px; }
+
+    .sidebar-footer { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+
+    /* ===== MAIN ===== */
+    .main-content { flex: 1; display: flex; flex-direction: column; gap: 14px; overflow: hidden; min-width: 0; }
+    .module-header {
+        background: var(--surface); border-radius: var(--r-lg);
+        padding: 12px 20px; display: flex; justify-content: space-between;
+        align-items: center; box-shadow: var(--shadow-out); gap: 12px; flex-wrap: wrap;
+    }
+    .module-title h2 { color: var(--text-dark); font-size: 16px; font-weight: 900; }
+    .module-title p { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+    .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .scenario-badge {
+        background: var(--surface); color: var(--accent-maroon);
+        padding: 8px 14px; border-radius: var(--r-md); font-weight: 800;
+        font-size: 11.5px; box-shadow: var(--shadow-in-sm);
+    }
+    .progress-bar {
+        height: 6px; background: var(--surface); border-radius: 3px;
+        margin-top: 8px; overflow: hidden; box-shadow: var(--shadow-in-sm);
+    }
+    .progress-fill {
+        height: 100%; background: linear-gradient(90deg, var(--success), var(--accent-gold));
+        width: 0%; transition: width 0.4s ease; border-radius: 3px;
+    }
+
+    /* ===== VIEWS ===== */
+    .view-container { display: none; flex: 1; gap: 14px; overflow: hidden; min-height: 0; }
+    .view-container.active { display: flex; }
+
+    /* Risk Matrix */
+    .risks-panel {
+        width: 280px; background: var(--surface); border-radius: var(--r-lg);
+        padding: 12px; display: flex; flex-direction: column; gap: 10px;
+        box-shadow: var(--shadow-out); overflow-y: auto; min-width: 240px;
+    }
+    .risk-card {
+        background: var(--surface); padding: 12px; border-radius: var(--r-md);
+        font-size: 12px; line-height: 1.4; box-shadow: var(--shadow-out-sm);
+        transition: 0.15s; display: flex; flex-direction: column; gap: 8px; cursor: grab;
+    }
+    .risk-card:hover { box-shadow: var(--shadow-out); }
+    .risk-card.dragging { opacity: 0.5; box-shadow: var(--shadow-in); transform: scale(0.98); }
+    .risk-card strong { color: var(--accent-maroon); display: block; font-size: 12.5px; font-weight: 800; }
+    .risk-card .risk-desc { font-size: 11px; color: var(--text-muted); }
+    .risk-card.hint-shown { background: var(--surface-alt); }
+    .risk-card .hint-text {
+        font-size: 10.5px; font-style: italic; color: var(--warning-deep);
+        padding: 7px 9px; background: var(--surface); border-radius: var(--r-xs);
+        box-shadow: var(--shadow-in-sm); border-left: 3px solid var(--warning); margin-top: 4px;
+    }
+    .card-controls {
+        display: flex; gap: 5px; padding-top: 8px;
+        border-top: 1px solid rgba(0,0,0,0.05); align-items: stretch; flex-wrap: wrap;
+    }
+    .card-controls select {
+        flex: 1; padding: 6px 8px; border: none; border-radius: var(--r-xs);
+        outline: none; font-size: 10.5px; font-weight: 700;
+        background: var(--surface); color: var(--text-dark);
+        cursor: pointer; box-shadow: var(--shadow-in-sm); min-width: 55px;
+    }
+    .btn-submit-risk, .btn-hint, .btn-unassign {
+        background: var(--accent-gold); color: var(--text-dark); border: none;
+        padding: 6px 10px; border-radius: var(--r-xs); font-weight: 800;
+        cursor: pointer; font-size: 11px; box-shadow: var(--shadow-out-sm);
+        transition: 0.15s; white-space: nowrap;
+    }
+    .btn-hint { background: var(--surface); color: var(--warning-deep); }
+    .btn-unassign { background: var(--surface); color: var(--text-muted); }
+    .btn-submit-risk:hover, .btn-hint:hover, .btn-unassign:hover { box-shadow: var(--shadow-out); }
+    .btn-submit-risk:active, .btn-hint:active, .btn-unassign:active { box-shadow: var(--shadow-in-sm); }
+    .btn-hint:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .matrix-panel {
+        flex: 1; background: var(--surface); border-radius: var(--r-lg);
+        padding: 16px; box-shadow: var(--shadow-out);
+        display: flex; flex-direction: column; min-width: 0;
+    }
+    .grid-wrapper { display: flex; flex-direction: column; flex: 1; gap: 8px; min-height: 0; }
+    .grid-header-row { display: flex; gap: 6px; }
+    .grid-axis-title {
+        font-weight: 800; color: var(--text-muted); font-size: 10px;
+        text-transform: uppercase; letter-spacing: 1px;
+        writing-mode: vertical-rl; transform: rotate(180deg);
+        width: 20px; display: flex; align-items: center; justify-content: center;
+    }
+    .grid-columns-header { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; flex: 1; }
+    .grid-columns-header span {
+        text-align: center; font-weight: 800; color: var(--text-dark); font-size: 10.5px; padding: 5px 0;
+    }
+    .grid-body-container { display: flex; gap: 6px; flex: 1; min-height: 0; }
+    .grid-rows-wrapper { display: grid; grid-template-rows: repeat(5, 1fr); gap: 6px; flex: 1; min-width: 0; }
+    .grid-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .row-label-cell {
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; color: var(--text-muted); font-size: 10px;
+        width: 20px; writing-mode: vertical-rl; transform: rotate(180deg);
+    }
+    .drop-zone {
+        background: var(--surface); border: none; border-radius: var(--r-md);
+        display: flex; flex-direction: column; align-items: center;
+        padding: 5px; gap: 3px; transition: 0.2s;
+        overflow-y: auto; min-height: 40px; position: relative;
+        box-shadow: var(--shadow-in-sm);
+    }
+    .drop-zone.drag-over { box-shadow: var(--shadow-in), 0 0 0 2px var(--accent-gold); transform: scale(1.03); }
+    .drop-zone-label { font-size: 9px; color: var(--text-muted); opacity: 0.6; font-weight: 800; text-align: center; pointer-events: none; }
+    .drop-zone.heat-1, .drop-zone.heat-2 { background: var(--heat-1); }
+    .drop-zone.heat-3, .drop-zone.heat-4 { background: var(--heat-2); }
+    .drop-zone.heat-5 { background: var(--heat-3); }
+    .drop-zone.heat-6 { background: var(--heat-4); }
+    .drop-zone.heat-7 { background: var(--heat-5); }
+    .drop-zone.heat-8, .drop-zone.heat-9 { background: var(--heat-6); }
+    .drop-zone.heat-10 { background: var(--heat-7); }
+    .placed-risk {
+        width: 100%; font-size: 9.5px; padding: 4px 5px; border-radius: var(--r-xs);
+        cursor: default; text-align: center; background: var(--surface);
+        font-weight: 800; color: var(--text-dark); line-height: 1.2;
+        overflow: hidden; text-overflow: ellipsis; box-shadow: var(--shadow-out-sm);
+        animation: dropIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes dropIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .placed-risk.correct { background: var(--success); color: var(--text-light); box-shadow: var(--shadow-out-sm), 0 0 0 2px var(--success-deep); }
+    .placed-risk.incorrect { background: var(--danger); color: var(--text-light); box-shadow: var(--shadow-out-sm), 0 0 0 2px var(--danger-deep); }
+
+    /* Quiz */
+    .quiz-panel {
+        flex: 1; background: var(--surface); border-radius: var(--r-lg);
+        padding: 24px; box-shadow: var(--shadow-out);
+        display: flex; flex-direction: column; gap: 16px; overflow-y: auto;
+    }
+    .quiz-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .quiz-progress { font-size: 12px; color: var(--text-muted); font-weight: 700; }
+    .quiz-q {
+        font-size: 18px; font-weight: 800; color: var(--text-dark);
+        line-height: 1.4; padding: 20px; background: var(--surface);
+        border-radius: var(--r-md); box-shadow: var(--shadow-in-sm);
+    }
+    .quiz-options { display: flex; flex-direction: column; gap: 12px; }
+    .quiz-opt {
+        background: var(--surface); border: none; padding: 16px 20px;
+        border-radius: var(--r-md); cursor: pointer; text-align: left;
+        font-size: 14px; font-weight: 600; color: var(--text-dark);
+        box-shadow: var(--shadow-out-sm); transition: 0.2s;
+        display: flex; align-items: center; gap: 14px; font-family: inherit;
+    }
+    .quiz-opt:hover:not(:disabled) { box-shadow: var(--shadow-out); transform: translateX(3px); }
+    .quiz-opt:active:not(:disabled) { box-shadow: var(--shadow-in); transform: translateX(0); }
+    .quiz-opt:disabled { cursor: not-allowed; }
+    .quiz-opt .opt-letter {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: var(--surface); box-shadow: var(--shadow-in-sm);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 900; color: var(--accent-maroon); flex-shrink: 0;
+    }
+    .quiz-opt.correct { background: var(--success); color: var(--text-light); box-shadow: var(--shadow-in); }
+    .quiz-opt.correct .opt-letter { background: var(--success-deep); color: var(--text-light); }
+    .quiz-opt.incorrect { background: var(--danger); color: var(--text-light); box-shadow: var(--shadow-in); }
+    .quiz-opt.incorrect .opt-letter { background: var(--danger-deep); color: var(--text-light); }
+    .quiz-feedback {
+        padding: 16px 20px; border-radius: var(--r-md); font-size: 13px;
+        line-height: 1.5; box-shadow: var(--shadow-in-sm);
+        border-left: 4px solid var(--info);
+        animation: slideIn 0.3s ease-out;
+    }
+    .quiz-feedback.correct { border-left-color: var(--success-deep); }
+    .quiz-feedback.incorrect { border-left-color: var(--danger-deep); }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Scenario Simulator */
+    .sim-panel {
+        flex: 1; background: var(--surface); border-radius: var(--r-lg);
+        padding: 22px; box-shadow: var(--shadow-out);
+        display: flex; flex-direction: column; gap: 16px; overflow-y: auto;
+    }
+    .incident-card {
+        background: var(--surface); padding: 20px; border-radius: var(--r-md);
+        box-shadow: var(--shadow-out-sm); border-left: 4px solid var(--danger-deep);
+    }
+    .incident-card .inc-label { font-size: 10px; font-weight: 900; letter-spacing: 1px; color: var(--danger-deep); text-transform: uppercase; }
+    .incident-card h3 { font-size: 18px; margin: 8px 0; color: var(--text-dark); font-weight: 900; }
+    .incident-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    .sim-responses { display: flex; flex-direction: column; gap: 10px; }
+    .sim-resp {
+        background: var(--surface); padding: 14px 16px;
+        border-radius: var(--r-md); cursor: pointer;
+        box-shadow: var(--shadow-out-sm); transition: 0.2s;
+        display: flex; align-items: flex-start; gap: 12px;
+        border-left: 4px solid transparent;
+    }
+    .sim-resp:hover { box-shadow: var(--shadow-out); }
+    .sim-resp.selected {
+        box-shadow: var(--shadow-in); background: var(--surface-alt);
+        border-left-color: var(--accent-gold);
+    }
+    .sim-resp input[type="checkbox"] {
+        width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent-maroon);
+        margin-top: 2px; flex-shrink: 0;
+    }
+    .sim-resp .resp-body { flex: 1; min-width: 0; }
+    .sim-resp .resp-title { font-weight: 800; font-size: 13px; color: var(--text-dark); }
+    .sim-resp .resp-desc { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+    .sim-actions {
+        display: flex; gap: 10px; padding: 14px;
+        background: var(--surface); border-radius: var(--r-md);
+        box-shadow: var(--shadow-in-sm); align-items: center; flex-wrap: wrap;
+    }
+    .sim-actions .points-input {
+        width: 70px; padding: 8px 10px; border: none;
+        border-radius: var(--r-xs); background: var(--surface);
+        font-weight: 800; color: var(--text-dark); box-shadow: var(--shadow-in-sm);
+        font-size: 13px; outline: none;
+    }
+    .sim-score-display { font-weight: 900; color: var(--accent-maroon); font-size: 15px; padding: 8px 14px; background: var(--surface); border-radius: var(--r-sm); box-shadow: var(--shadow-in-sm); }
+
+    /* Drill */
+    .drill-panel {
+        flex: 1; background: var(--surface); border-radius: var(--r-lg);
+        padding: 22px; box-shadow: var(--shadow-out);
+        display: flex; flex-direction: column; gap: 16px; overflow-y: auto;
+    }
+    .drill-section {
+        background: var(--surface); padding: 18px; border-radius: var(--r-md);
+        box-shadow: var(--shadow-out-sm);
+    }
+    .drill-section h4 {
+        font-size: 12px; font-weight: 900; color: var(--text-muted);
+        text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .drill-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .drill-field:last-child { margin-bottom: 0; }
+    .drill-field label { font-size: 11.5px; font-weight: 800; color: var(--text-muted); }
+    .drill-field input, .drill-field textarea, .drill-field select {
+        background: var(--surface); border: none; border-radius: var(--r-sm);
+        padding: 10px 12px; color: var(--text-dark); font-weight: 600;
+        font-size: 12.5px; box-shadow: var(--shadow-in); outline: none;
+        font-family: inherit; resize: vertical;
+    }
+    .drill-field textarea { min-height: 70px; line-height: 1.5; }
+    .drill-field input:focus, .drill-field textarea:focus, .drill-field select:focus { box-shadow: var(--shadow-in), 0 0 0 2px var(--accent-gold); }
+
+    .team-action-row {
+        display: grid; grid-template-columns: 1fr 2fr auto; gap: 10px;
+        align-items: start; margin-bottom: 10px;
+    }
+    .team-action-row:last-child { margin-bottom: 0; }
+    .timer-inputs { display: flex; gap: 8px; align-items: center; }
+    .timer-inputs input { width: 70px; }
+
+    /* ===== NOTIFICATION PANEL ===== */
+    .notif-panel {
+        position: fixed; top: 70px; right: 16px;
+        width: 380px; max-width: calc(100vw - 32px); max-height: 70vh;
+        background: var(--surface); border-radius: var(--r-lg);
+        box-shadow: var(--shadow-out-lg); z-index: 150;
+        display: none; flex-direction: column; overflow: hidden;
+        animation: slideIn 0.25s ease-out;
+    }
+    .notif-panel.active { display: flex; }
+    .notif-panel-header {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 14px 18px; font-weight: 800; font-size: 14px;
+        color: var(--text-dark); box-shadow: 0 2px 4px var(--shadow-dark);
+    }
+    .notif-panel-header .header-actions { display: flex; gap: 6px; }
+    .notif-panel-header button {
+        background: var(--surface); border: none; color: var(--text-dark);
+        cursor: pointer; font-size: 11px; font-weight: 700;
+        padding: 6px 10px; border-radius: var(--r-xs);
+        box-shadow: var(--shadow-out-sm); transition: 0.15s;
+    }
+    .notif-panel-header button:hover { box-shadow: var(--shadow-out); }
+    .notif-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .notif-item {
+        display: flex; gap: 12px; padding: 12px 14px;
+        background: var(--surface); border-radius: var(--r-md);
+        box-shadow: var(--shadow-out-sm); animation: notifIn 0.25s ease-out;
+        cursor: pointer; transition: 0.2s;
+        border-left: 4px solid var(--info);
+    }
+    .notif-item:hover { box-shadow: var(--shadow-out); transform: translateX(2px); }
+    .notif-item.unread { box-shadow: var(--shadow-out), 0 0 0 2px var(--accent-gold); }
+    .notif-item.success { border-left-color: var(--success-deep); }
+    .notif-item.danger { border-left-color: var(--danger-deep); }
+    .notif-item.warning { border-left-color: var(--warning-deep); }
+    @keyframes notifIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    .notif-icon { font-size: 20px; flex-shrink: 0; }
+    .notif-body { flex: 1; min-width: 0; }
+    .notif-title { font-weight: 800; font-size: 12.5px; color: var(--text-dark); margin-bottom: 3px; }
+    .notif-msg { font-size: 11.5px; line-height: 1.4; color: var(--text-muted); word-break: break-word; }
+    .notif-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; font-style: italic; opacity: 0.7; }
+    .notif-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; }
+    .notif-panel-footer {
+        padding: 10px 16px; font-size: 11px; text-align: center;
+        color: var(--text-muted); box-shadow: 0 -2px 4px var(--shadow-dark);
+    }
+
+    /* ===== TOASTS ===== */
+    .toast-container {
+        position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+        z-index: 300; display: flex; flex-direction: column; gap: 10px;
+        pointer-events: none; max-width: calc(100vw - 40px);
+    }
+    .toast {
+        display: flex; align-items: flex-start; gap: 12px;
+        background: var(--surface); color: var(--text-dark);
+        padding: 14px 18px; border-radius: var(--r-md); font-weight: bold;
+        box-shadow: var(--shadow-out-lg);
+        animation: toastIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        pointer-events: auto; min-width: 260px; max-width: 420px;
+        border-left: 5px solid var(--accent-gold); position: relative; overflow: hidden;
+    }
+    .toast.removing { animation: toastOut 0.25s ease-in forwards; }
+    .toast.success { border-left-color: var(--success-deep); }
+    .toast.danger { border-left-color: var(--danger-deep); }
+    .toast.warning { border-left-color: var(--warning-deep); }
+    .toast.info { border-left-color: var(--info); }
+    .toast-icon { font-size: 20px; flex-shrink: 0; line-height: 1; }
+    .toast-body { flex: 1; min-width: 0; }
+    .toast-title { font-size: 13px; margin-bottom: 3px; }
+    .toast-msg { font-size: 12px; font-weight: 500; color: var(--text-muted); line-height: 1.4; }
+    .toast-close { background: transparent; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; padding: 0 4px; opacity: 0.6; }
+    .toast-close:hover { opacity: 1; color: var(--text-dark); }
+    .toast-progress {
+        position: absolute; bottom: 0; left: 0; height: 3px;
+        background: var(--accent-gold); opacity: 0.6;
+        animation: toastProgress linear forwards;
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateY(-15px) scale(0.9); } }
+    @keyframes toastProgress { from { width: 100%; } to { width: 0%; } }
+
+    /* ===== KITSUNE ===== */
+    .kitsune-container {
+        position: fixed; bottom: 18px; right: 18px; z-index: 90;
+        display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+        pointer-events: none; transition: transform 0.4s ease;
+    }
+    .kitsune-container.minimized { transform: translateX(calc(100% - 50px)); }
+    .kitsune-container.hidden { transform: translate(200%, 200%); }
+    .kitsune-bubble {
+        background: var(--surface); border-radius: var(--r-md);
+        padding: 10px 14px; max-width: 240px;
+        font-size: 12px; font-weight: 700; color: var(--text-dark);
+        box-shadow: var(--shadow-out); position: relative; pointer-events: auto;
+        opacity: 0; transform: translateY(10px) scale(0.9);
+        transition: opacity 0.25s, transform 0.25s; line-height: 1.4;
+    }
+    .kitsune-bubble.visible { opacity: 1; transform: translateY(0) scale(1); }
+    .kitsune-bubble::after {
+        content: ''; position: absolute; bottom: -8px; right: 30px;
+        width: 16px; height: 16px; background: var(--surface);
+        transform: rotate(45deg); box-shadow: 3px 3px 4px var(--shadow-dark); z-index: -1;
+    }
+    .kitsune-svg-wrap {
+        width: 105px; height: 105px; pointer-events: auto; cursor: pointer;
+        transition: transform 0.25s; position: relative;
+        filter: drop-shadow(6px 6px 12px var(--shadow-dark)) drop-shadow(-6px -6px 12px var(--shadow-light));
+    }
+    .kitsune-svg-wrap:hover { transform: scale(1.06) translateY(-4px); }
+    .kitsune-svg-wrap svg { width: 100%; height: 100%; overflow: visible; }
+    .kitsune-body-group { animation: kitsuneBreathe 3s ease-in-out infinite; transform-origin: center bottom; }
+    @keyframes kitsuneBreathe { 0%, 100% { transform: scaleY(1) scaleX(1); } 50% { transform: scaleY(1.03) scaleX(0.99); } }
+    .kitsune-tail-group { animation: tailWag 2.5s ease-in-out infinite; transform-origin: 75% 60%; }
+    @keyframes tailWag { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+    .kitsune-eye { animation: blink 5s infinite; transform-origin: center; }
+    @keyframes blink { 0%, 96%, 100% { transform: scaleY(1); } 98% { transform: scaleY(0.1); } }
+    .kitsune-ear-left { animation: earTwitchL 6s infinite; transform-origin: bottom center; }
+    .kitsune-ear-right { animation: earTwitchR 6s infinite; transform-origin: bottom center; }
+    @keyframes earTwitchL { 0%, 90%, 100% { transform: rotate(0deg); } 93% { transform: rotate(-8deg); } }
+    @keyframes earTwitchR { 0%, 88%, 100% { transform: rotate(0deg); } 91% { transform: rotate(8deg); } }
+    .kitsune-svg-wrap.happy .kitsune-body-group { animation: kitsuneJump 0.6s ease-out 2; }
+    @keyframes kitsuneJump { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-16px); } }
+    .kitsune-svg-wrap.sad { animation: kitsuneShake 0.5s ease-in-out 2; }
+    @keyframes kitsuneShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px) rotate(-3deg); } 75% { transform: translateX(6px) rotate(3deg); } }
+    .kitsune-svg-wrap.thinking .kitsune-body-group { animation: kitsuneTilt 1.5s ease-in-out infinite; }
+    @keyframes kitsuneTilt { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-5deg); } }
+    .kitsune-svg-wrap.celebrate .kitsune-body-group { animation: kitsuneSpin 1s ease-in-out 3; }
+    @keyframes kitsuneSpin { 0%, 100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(10deg) scale(1.1); } }
+    .kitsune-sparkle { position: absolute; font-size: 20px; pointer-events: none; animation: sparkleFloat 1.2s ease-out forwards; z-index: 95; }
+    @keyframes sparkleFloat { 0% { opacity: 1; transform: translate(0,0) scale(1) rotate(0deg); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(360deg); } }
+    .kitsune-controls { display: flex; gap: 5px; pointer-events: auto; opacity: 0; transition: opacity 0.2s; }
+    .kitsune-container:hover .kitsune-controls { opacity: 1; }
+    .kitsune-mini-btn {
+        background: var(--surface); border: none; border-radius: 50%;
+        width: 28px; height: 28px; cursor: pointer; font-size: 11px;
+        font-weight: 800; color: var(--text-muted);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: var(--shadow-out-sm); transition: 0.15s;
+    }
+    .kitsune-mini-btn:hover { color: var(--text-dark); box-shadow: var(--shadow-out); }
+
+    /* ===== MODALS ===== */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(58, 51, 44, 0.45); backdrop-filter: blur(6px);
+        display: none; justify-content: center; align-items: center;
+        z-index: 200; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+        background: var(--surface); padding: 24px;
+        border-radius: var(--r-lg); width: 580px; max-width: 96vw;
+        max-height: 90vh; overflow-y: auto;
+        box-shadow: var(--shadow-out-lg); position: relative;
+        animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal-content.modal-wide { width: 900px; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+    .modal-content h2 { color: var(--text-dark); text-align: center; margin-bottom: 18px; font-size: 20px; font-weight: 900; }
+    .modal-close {
+        position: absolute; top: 12px; right: 14px;
+        background: var(--surface); border: none; font-size: 18px;
+        cursor: pointer; color: var(--text-muted); font-weight: bold;
+        width: 34px; height: 34px; border-radius: 50%;
+        box-shadow: var(--shadow-out-sm);
+        display: flex; align-items: center; justify-content: center; transition: 0.15s;
+    }
+    .modal-close:hover { box-shadow: var(--shadow-out); color: var(--text-dark); }
+
+    .scoreboard-row {
+        display: flex; justify-content: space-between;
+        padding: 12px 16px; background: var(--surface); border-radius: var(--r-md);
+        margin-bottom: 8px; align-items: center; font-weight: bold;
+        box-shadow: var(--shadow-out-sm); gap: 10px;
+    }
+    .scoreboard-row:first-child { box-shadow: var(--shadow-out), 0 0 0 2px var(--accent-gold); font-size: 16px; color: var(--accent-maroon); }
+    .scoreboard-row .rank { font-weight: 900; width: 28px; }
+    .scoreboard-row .pts { font-variant-numeric: tabular-nums; }
+
+    .scenario-intro { text-align: center; }
+    .scenario-intro h2 { margin-bottom: 12px; }
+    .scenario-intro p { font-size: 14px; line-height: 1.65; margin-bottom: 14px; color: var(--text-muted); }
+    .scenario-intro .difficulty-badge {
+        display: inline-block; padding: 5px 14px; border-radius: 20px;
+        font-size: 10.5px; font-weight: 800; letter-spacing: 1px;
+        margin-bottom: 12px; box-shadow: var(--shadow-in-sm); color: var(--text-light);
+    }
+    .diff-easy { background: var(--success); }
+    .diff-medium { background: var(--warning-deep); }
+    .diff-hard { background: var(--danger-deep); }
+
+    .podium { display: flex; justify-content: center; align-items: flex-end; gap: 10px; margin: 20px 0; }
+    .podium-item {
+        display: flex; flex-direction: column; align-items: center;
+        background: var(--surface); border-radius: var(--r-md);
+        padding: 12px 8px; min-width: 88px; gap: 4px; box-shadow: var(--shadow-out);
+    }
+    .podium-item.rank-1 { padding-bottom: 26px; background: linear-gradient(145deg, #D8B67A, #C89B5C); color: var(--text-dark); transform: scale(1.08); }
+    .podium-item.rank-2 { padding-bottom: 12px; }
+    .podium-item.rank-3 { padding-bottom: 6px; }
+    .podium-item .medal { font-size: 24px; }
+    .podium-item .pname { font-weight: 900; font-size: 12px; text-align: center; }
+    .podium-item .pscore { font-size: 11px; opacity: 0.8; font-weight: 700; }
+
+    .setting-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .setting-row label { font-weight: 700; font-size: 13px; color: var(--text-dark); }
+    .setting-row input[type="number"], .setting-row select {
+        padding: 8px 12px; border: none; border-radius: var(--r-xs);
+        background: var(--surface); color: var(--text-dark);
+        font-weight: 800; font-size: 12.5px; box-shadow: var(--shadow-in);
+        width: 80px; outline: none;
+    }
+    .setting-row input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--accent-maroon); }
+
+    /* Admin editor specific */
+    .editor-tabs {
+        display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .editor-tab {
+        background: var(--surface); border: none; padding: 10px 16px;
+        border-radius: var(--r-md); cursor: pointer; font-weight: 800;
+        font-size: 12px; box-shadow: var(--shadow-out-sm);
+        color: var(--text-dark); transition: 0.2s;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .editor-tab:hover { box-shadow: var(--shadow-out); }
+    .editor-tab.active { box-shadow: var(--shadow-in); color: var(--accent-maroon); background: var(--surface-alt); }
+    .editor-tab .count {
+        background: var(--accent-maroon); color: var(--text-light);
+        padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 900;
+    }
+
+    .editor-item {
+        background: var(--surface); padding: 14px 16px;
+        border-radius: var(--r-md); margin-bottom: 10px;
+        box-shadow: var(--shadow-out-sm);
+        display: flex; gap: 12px; align-items: flex-start;
+    }
+    .editor-item .item-body { flex: 1; min-width: 0; }
+    .editor-item .item-title { font-weight: 800; font-size: 13px; color: var(--text-dark); margin-bottom: 4px; }
+    .editor-item .item-meta { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+    .editor-item .item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+    .editor-form { display: flex; flex-direction: column; gap: 12px; }
+    .editor-form .drill-field { margin-bottom: 0; }
+
+    .empty-state {
+        text-align: center; padding: 40px 20px; color: var(--text-muted);
+        font-size: 13px; line-height: 1.6;
+    }
+    .empty-state .big-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface-deep); border-radius: 4px; box-shadow: var(--shadow-in-sm); }
+
+    @media (max-width: 900px) {
+        body { padding: 8px; gap: 8px; overflow: auto; height: auto; }
+        .app-container { flex-direction: column; overflow: visible; }
+        .sidebar { width: 100%; max-height: none; }
+        .view-container.active { flex-direction: column; }
+        .risks-panel { width: 100%; max-height: 300px; }
+        .matrix-panel { min-height: 500px; }
+        .notif-panel { top: 60px; right: 8px; width: calc(100vw - 16px); }
+        .toast { min-width: auto; max-width: calc(100vw - 40px); }
+        .kitsune-svg-wrap { width: 80px; height: 80px; }
+        .kitsune-bubble { max-width: 170px; font-size: 11px; }
+        .team-action-row { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<header class="top-nav">
+    <div class="logo-area">
+        <div class="logo-icon">ACT</div>
+        InfoAssurance
+        <span style="font-size:10px; color:var(--text-muted); font-weight:600;">v3.0</span>
+    </div>
+    <div class="nav-controls">
+        <div class="timer" id="gameTimer">00:00</div>
+        <button class="btn btn-icon" onclick="toggleScoreboard()" title="Scoreboard">🏆</button>
+        <div class="notif-bell-wrap">
+            <button class="btn btn-icon" id="notifBell" onclick="toggleNotifPanel()" title="Notifications">🔔</button>
+            <span class="notif-badge" id="notifBadge">0</span>
+        </div>
+        <button class="btn btn-icon" onclick="toggleAdmin()" title="Admin Question Editor">🛠️</button>
+        <button class="btn btn-icon" onclick="toggleSettings()" title="Settings">⚙️</button>
+        <button class="btn btn-icon" onclick="toggleSound()" id="soundBtn" title="Sound">🔊</button>
+        <button class="btn btn-icon" onclick="toggleTheme()" title="Theme">🌓</button>
+    </div>
+</header>
+
+<!-- NOTIFICATION CENTER -->
+<div class="notif-panel" id="notifPanel">
+    <div class="notif-panel-header">
+        <span>🔔 Notifications</span>
+        <div class="header-actions">
+            <button onclick="markAllRead()">Mark all read</button>
+            <button onclick="clearNotifications()">Clear</button>
+        </div>
+    </div>
+    <div class="notif-list" id="notifList"></div>
+    <div class="notif-panel-footer"><span id="notifFooterText">No notifications yet</span></div>
+</div>
+
+<div class="app-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="section-title">📚 Modules</div>
+        <div class="module-nav" id="moduleNav"></div>
+
+        <div class="section-title" style="margin-top:8px;">👥 Teams</div>
+        <div class="team-input-group">
+            <input type="text" id="newTeamName" placeholder="Team name" onkeypress="handleEnter(event)" maxlength="20">
+            <button class="btn btn-primary" onclick="addTeam()">+</button>
+        </div>
+        <div class="team-list" id="teamList"></div>
+
+        <div class="sidebar-footer">
+            <button class="btn btn-outline" onclick="resetAll()">↺ Reset All</button>
+            <button class="btn btn-outline" onclick="exportScores()">⬇ Export CSV</button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+        <div class="module-header">
+            <div class="module-title">
+                <h2 id="mainTitle">Select a Module</h2>
+                <p id="mainSubtitle">Choose an activity from the sidebar to begin.</p>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+            <div class="header-actions" id="headerActions"></div>
+        </div>
+
+        <!-- VIEW: RISK MATRIX -->
+        <div class="view-container" id="viewMatrix">
+            <div class="risks-panel" id="riskContainer"></div>
+            <div class="matrix-panel">
+                <div class="grid-wrapper">
+                    <div class="grid-header-row">
+                        <div class="grid-axis-title">Impact ↓</div>
+                        <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+                            <div style="font-size:9.5px; font-weight:800; color:var(--text-muted); text-align:right; padding-right:6px; letter-spacing:1px;">LIKELIHOOD →</div>
+                            <div class="grid-columns-header">
+                                <span>1 Rare</span><span>2 Unlikely</span><span>3 Possible</span><span>4 Likely</span><span>5 Certain</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-body-container">
+                        <div style="display:flex; flex-direction:column; gap:6px; justify-content:space-around;">
+                            <div class="row-label-cell" style="height:100%;">5 Catastrophic</div>
+                            <div class="row-label-cell" style="height:100%;">4 Major</div>
+                            <div class="row-label-cell" style="height:100%;">3 Moderate</div>
+                            <div class="row-label-cell" style="height:100%;">2 Minor</div>
+                            <div class="row-label-cell" style="height:100%;">1 Insignificant</div>
+                        </div>
+                        <div class="grid-rows-wrapper" id="gridRows"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: QUIZ -->
+        <div class="view-container" id="viewQuiz">
+            <div class="quiz-panel" id="quizPanel">
+                <div class="empty-state">
+                    <div class="big-icon">❓</div>
+                    <div>Click <b>Start Quiz</b> to begin.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: SCENARIO SIMULATOR -->
+        <div class="view-container" id="viewSim">
+            <div class="sim-panel" id="simPanel">
+                <div class="empty-state">
+                    <div class="big-icon">🎭</div>
+                    <div>Click <b>Start Scenario</b> to begin.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: DRILL -->
+        <div class="view-container" id="viewDrill">
+            <div class="drill-panel" id="drillPanel">
+                <div class="empty-state">
+                    <div class="big-icon">🚨</div>
+                    <div>Click <b>Start Drill</b> to begin.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- KITSUNE MASCOT -->
+<div class="kitsune-container" id="kitsuneContainer">
+    <div class="kitsune-bubble" id="kitsuneBubble"></div>
+    <div class="kitsune-controls">
+        <button class="kitsune-mini-btn" onclick="minimizeKitsune()" title="Minimize">—</button>
+        <button class="kitsune-mini-btn" onclick="hideKitsune()" title="Hide">×</button>
+    </div>
+    <div class="kitsune-svg-wrap" id="kitsuneSvg" onclick="kitsunePoke()" title="Poke the kitsune!">
+        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <g class="kitsune-tail-group">
+                <path d="M 82 82 Q 105 70 112 48 Q 115 38 108 40 Q 100 55 82 68 Z" fill="var(--kitsune-fur-dark)" stroke="var(--text-dark)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M 112 48 Q 115 38 108 40 Q 104 47 100 50 Z" fill="var(--kitsune-white)" stroke="var(--text-dark)" stroke-width="2" stroke-linejoin="round"/>
+            </g>
+            <g class="kitsune-body-group">
+                <g class="kitsune-ear-left">
+                    <path d="M 38 30 L 30 8 L 48 22 Z" fill="var(--kitsune-fur)" stroke="var(--text-dark)" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M 38 28 L 33 13 L 45 22 Z" fill="var(--kitsune-white)"/>
+                </g>
+                <g class="kitsune-ear-right">
+                    <path d="M 62 30 L 70 8 L 52 22 Z" fill="var(--kitsune-fur)" stroke="var(--text-dark)" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M 62 28 L 67 13 L 55 22 Z" fill="var(--kitsune-white)"/>
+                </g>
+                <ellipse cx="50" cy="42" rx="24" ry="22" fill="var(--kitsune-fur)" stroke="var(--text-dark)" stroke-width="2.5"/>
+                <path d="M 50 46 Q 40 56 42 62 Q 50 66 58 62 Q 60 56 50 46 Z" fill="var(--kitsune-white)" stroke="var(--text-dark)" stroke-width="1.5"/>
+                <path d="M 46 32 Q 50 27 54 32 Q 50 35 46 32 Z" fill="var(--kitsune-fur-dark)" opacity="0.6"/>
+                <g class="kitsune-eye"><ellipse cx="42" cy="42" rx="3" ry="4" fill="var(--kitsune-nose)"/><circle cx="43" cy="40.5" r="1.2" fill="var(--surface)"/></g>
+                <g class="kitsune-eye"><ellipse cx="58" cy="42" rx="3" ry="4" fill="var(--kitsune-nose)"/><circle cx="59" cy="40.5" r="1.2" fill="var(--surface)"/></g>
+                <circle cx="36" cy="49" r="3" fill="#E88" opacity="0.35"/>
+                <circle cx="64" cy="49" r="3" fill="#E88" opacity="0.35"/>
+                <ellipse cx="50" cy="50" rx="2.5" ry="2" fill="var(--kitsune-nose)"/>
+                <path d="M 47 54 Q 50 57 53 54" stroke="var(--text-dark)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <line x1="30" y1="48" x2="20" y2="46" stroke="var(--text-dark)" stroke-width="1" opacity="0.4"/>
+                <line x1="30" y1="52" x2="20" y2="53" stroke="var(--text-dark)" stroke-width="1" opacity="0.4"/>
+                <line x1="70" y1="48" x2="80" y2="46" stroke="var(--text-dark)" stroke-width="1" opacity="0.4"/>
+                <line x1="70" y1="52" x2="80" y2="53" stroke="var(--text-dark)" stroke-width="1" opacity="0.4"/>
+            </g>
+            <g>
+                <rect x="20" y="80" width="22" height="16" rx="2" fill="var(--kitsune-white)" stroke="var(--text-dark)" stroke-width="1.5"/>
+                <line x1="23" y1="85" x2="39" y2="85" stroke="var(--text-muted)" stroke-width="0.8"/>
+                <line x1="23" y1="88" x2="39" y2="88" stroke="var(--text-muted)" stroke-width="0.8"/>
+                <line x1="23" y1="91" x2="35" y2="91" stroke="var(--text-muted)" stroke-width="0.8"/>
+                <ellipse cx="30" cy="78" rx="6" ry="5" fill="var(--kitsune-fur)" stroke="var(--text-dark)" stroke-width="2"/>
+                <ellipse cx="52" cy="78" rx="6" ry="5" fill="var(--kitsune-fur)" stroke="var(--text-dark)" stroke-width="2"/>
+            </g>
+        </svg>
+    </div>
+</div>
+
+<!-- SCOREBOARD MODAL -->
+<div class="modal-overlay" id="scoreboardModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="toggleScoreboard()">×</button>
+        <h2>Current Standings</h2>
+        <div id="modalScoreList"></div>
+    </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="toggleSettings()">×</button>
+        <h2>Settings</h2>
+        <div class="setting-row"><label>Points per correct</label><input type="number" id="cfgPoints" value="10" min="1" max="100"></div>
+        <div class="setting-row"><label>Hint cost</label><input type="number" id="cfgHintCost" value="3" min="0" max="50"></div>
+        <div class="setting-row"><label>Timer (minutes, 0 = off)</label><input type="number" id="cfgTimer" value="5" min="0" max="60"></div>
+        <div class="setting-row"><label>Turn-based mode</label><input type="checkbox" id="cfgTurnBased"></div>
+        <div class="setting-row"><label>Enable hints</label><input type="checkbox" id="cfgHints" checked></div>
+        <div class="setting-row"><label>Sound effects</label><input type="checkbox" id="cfgSound" checked></div>
+        <div class="setting-row"><label>Toast notifications</label><input type="checkbox" id="cfgToasts" checked></div>
+        <div class="setting-row"><label>Kitsune mascot</label><input type="checkbox" id="cfgKitsune" checked></div>
+        <button class="btn btn-primary" style="width:100%; margin-top:18px;" onclick="saveSettings()">Save Settings</button>
+    </div>
+</div>
+
+<!-- SCENARIO INTRO MODAL -->
+<div class="modal-overlay" id="introModal">
+    <div class="modal-content scenario-intro">
+        <h2 id="introTitle">Scenario</h2>
+        <div id="introDifficulty"></div>
+        <p id="introDesc"></p>
+        <button class="btn btn-primary" style="width:100%; padding:13px;" onclick="beginIntro()">Begin →</button>
+    </div>
+</div>
+
+<!-- SUMMARY MODAL -->
+<div class="modal-overlay" id="summaryModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="toggleSummary()">×</button>
+        <h2>🏆 Session Complete!</h2>
+        <div class="podium" id="podium"></div>
+        <div id="summaryStats" style="text-align:center; margin-top:14px; font-size:13px; color:var(--text-muted);"></div>
+        <button class="btn btn-primary" style="width:100%; margin-top:18px;" onclick="closeSummary()">Close</button>
+    </div>
+</div>
+
+<!-- ADMIN EDITOR MODAL -->
+<div class="modal-overlay" id="adminModal">
+    <div class="modal-content modal-wide">
+        <button class="modal-close" onclick="toggleAdmin()">×</button>
+        <h2>🛠️ Admin Question Editor</h2>
+        <div class="editor-tabs" id="editorTabs">
+            <button class="editor-tab active" data-tab="quiz" onclick="switchEditorTab('quiz')">❓ Quiz <span class="count" id="countQuiz">0</span></button>
+            <button class="editor-tab" data-tab="sim" onclick="switchEditorTab('sim')">🎭 Scenarios <span class="count" id="countSim">0</span></button>
+            <button class="editor-tab" data-tab="drill" onclick="switchEditorTab('drill')">🚨 Drills <span class="count" id="countDrill">0</span></button>
+            <button class="editor-tab" data-tab="data" onclick="switchEditorTab('data')">💾 Import/Export</button>
+        </div>
+        <div id="editorBody"></div>
+    </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ============================================================
+//  STATE
+// ============================================================
+const TEAM_COLORS = ['#A85A6E', '#6B9B7A', '#D4A373', '#7A8FA8', '#A87A9B', '#8AA86B', '#A88A6B'];
+
+const MODULES = {
+    matrix: { name: 'Risk Matrix', icon: '🎯', desc: 'Assign each risk to the correct Impact × Likelihood cell.' },
+    quiz:   { name: 'Quiz', icon: '❓', desc: 'Answer multiple-choice questions on information assurance.' },
+    sim:    { name: 'Scenario Simulator', icon: '🎭', desc: 'Judge realistic incidents — select the best set of responses (up to 20 pts).' },
+    drill:  { name: 'Incident Response Drill', icon: '🚨', desc: 'Simulate an incident: assign actions, set containment time, record lessons learned.' },
+};
+
+const state = {
+    teams: [
+        { name: 'Alpha', score: 0, active: true },
+        { name: 'Bravo', score: 0, active: false },
+        { name: 'Charlie', score: 0, active: false }
+    ],
+    currentModule: null,
+    gameActive: false,
+    timeElapsed: 0,
+    timerInterval: null,
+    timerLimit: 300,
+    turnIndex: 0,
+    turnBased: false,
+    settings: {
+        points: 10, hintCost: 3, hintsEnabled: true,
+        soundEnabled: true, toastsEnabled: true, kitsuneEnabled: true,
+    },
+    notifications: [],
+    unreadNotifs: 0,
+    // Content (editable via Admin)
+    content: {
+        quiz: [],
+        sim: [],
+        drill: [],
+    },
+};
+
+// ============================================================
+//  DEFAULT CONTENT
+// ============================================================
+function defaultContent() {
+    return {
+        quiz: [
+            { id: 'q1', question: 'What does the "C" in the CIA triad stand for?', options: ['Confidentiality', 'Control', 'Compliance', 'Cryptography'], correct: 0, explanation: 'CIA = Confidentiality, Integrity, Availability.' },
+            { id: 'q2', question: 'Which is an example of a technical control?', options: ['Security policy', 'Firewall', 'Security awareness training', 'Background checks'], correct: 1, explanation: 'Firewalls are technical; the others are administrative/personnel controls.' },
+            { id: 'q3', question: 'What is phishing?', options: ['A network attack using botnets', 'Social engineering via deceptive emails/messages', 'Physically stealing hardware', 'Encrypting data for ransom'], correct: 1, explanation: 'Phishing is social engineering via deceptive messages.' },
+            { id: 'q4', question: 'What does MFA stand for?', options: ['Multi-Factor Authentication', 'Managed File Access', 'Malware Filtering Agent', 'Main Frame Authorization'], correct: 0, explanation: 'MFA = Multi-Factor Authentication — combining 2+ factors.' },
+            { id: 'q5', question: 'Which is NOT a valid risk treatment strategy?', options: ['Accept', 'Transfer', 'Ignore', 'Mitigate'], correct: 2, explanation: 'You can accept, transfer, mitigate, or avoid — but "ignore" is not a valid strategy.' },
+        ],
+        sim: [
+            {
+                id: 's1', title: 'Suspicious Login Spike',
+                desc: 'Multiple failed login attempts hit your admin portal from an unrecognized IP. The account has admin privileges and no MFA.',
+                responses: [
+                    { text: 'Force password reset & enable MFA', correct: true },
+                    { text: 'Block the source IP at the firewall', correct: true },
+                    { text: 'Ignore — it is probably a scanner', correct: false },
+                    { text: 'Notify the security team & log event', correct: true },
+                    { text: 'Disable the admin account temporarily', correct: true },
+                    { text: 'Disable all internet access to the company', correct: false },
+                ]
+            },
+            {
+                id: 's2', title: 'Ransomware on File Server',
+                desc: 'Users report they cannot open documents on the shared drive. The drive contains encrypted files with a ransom note.',
+                responses: [
+                    { text: 'Isolate the file server from the network', correct: true },
+                    { text: 'Pay the ransom immediately', correct: false },
+                    { text: 'Restore from latest offline backup', correct: true },
+                    { text: 'Notify leadership & activate IR plan', correct: true },
+                    { text: 'Preserve evidence for investigation', correct: true },
+                    { text: 'Continue business as usual', correct: false },
+                ]
+            },
+        ],
+        drill: [
+            {
+                id: 'd1', title: 'Data Breach — Customer PII',
+                desc: 'A junior engineer accidentally deployed code exposing 10,000 customer records. The exposed endpoint has been live for 3 hours.',
+                actions: [
+                    { member: 'Security Lead', action: 'Take down the endpoint and validate the exposure scope' },
+                    { member: 'Comms Lead', action: 'Draft external notification and coordinate PR' },
+                    { member: 'Legal', action: 'Assess regulatory notification obligations (GDPR, HIPAA)' },
+                    { member: 'Engineer', action: 'Preserve logs and freeze affected deployments' },
+                ],
+                containmentMinutes: 30,
+                lessons: 'Need automated PII detection in code review; stage-gate before production deploy.',
+            },
+        ],
+    };
+}
+
+// ============================================================
+//  UTILITIES
+// ============================================================
+const $ = id => document.getElementById(id);
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const randomFrom = arr => arr[Math.floor(Math.random() * arr.length)];
+const uid = () => 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+
+// ============================================================
+//  NOTIFICATIONS
+// ============================================================
+const MAX_NOTIFICATIONS = 100;
+const NOTIF_ICONS = { success: '✓', danger: '✗', warning: '⚠', info: 'ℹ', game: '🎮', trophy: '🏆', team: '👥', kitsune: '🦊' };
+
+function notify(title, message = '', type = 'info', opts = {}) {
+    if (opts.toast !== false && state.settings.toastsEnabled) showToast(title, message, type, opts.duration || 3500);
+    if (opts.center !== false) pushNotification(title, message, type);
+}
+
+function showToast(title, message, type, duration) {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `
+        <div class="toast-icon">${NOTIF_ICONS[type] || 'ℹ'}</div>
+        <div class="toast-body">
+            <div class="toast-title">${escapeHtml(title)}</div>
+            ${message ? `<div class="toast-msg">${escapeHtml(message)}</div>` : ''}
+        </div>
+        <button class="toast-close">×</button>
+        <div class="toast-progress" style="animation-duration: ${duration}ms"></div>`;
+    const dismiss = () => {
+        if (el.classList.contains('removing')) return;
+        el.classList.add('removing');
+        setTimeout(() => el.remove(), 250);
+    };
+    el.querySelector('.toast-close').onclick = e => { e.stopPropagation(); dismiss(); };
+    el.addEventListener('click', dismiss);
+    $('toastContainer').appendChild(el);
+    setTimeout(dismiss, duration);
+    while ($('toastContainer').children.length > 5) $('toastContainer').firstChild.remove();
+}
+
+function pushNotification(title, message, type) {
+    state.notifications.unshift({ id: Date.now() + Math.random(), title, message, type, timestamp: new Date(), read: false });
+    if (state.notifications.length > MAX_NOTIFICATIONS) state.notifications = state.notifications.slice(0, MAX_NOTIFICATIONS);
+    state.unreadNotifs++;
+    renderNotifBadge();
+    renderNotifList();
+    saveState();
+}
+
+function renderNotifBadge() {
+    const b = $('notifBadge');
+    if (state.unreadNotifs > 0) { b.textContent = state.unreadNotifs > 99 ? '99+' : state.unreadNotifs; b.classList.add('show'); }
+    else b.classList.remove('show');
+}
+
+function renderNotifList() {
+    const list = $('notifList');
+    if (state.notifications.length === 0) {
+        list.innerHTML = `<div class="notif-empty">🔕<br>No notifications yet</div>`;
+        $('notifFooterText').textContent = 'No notifications yet';
+        return;
+    }
+    list.innerHTML = '';
+    state.notifications.forEach(n => {
+        const el = document.createElement('div');
+        el.className = `notif-item ${n.type} ${n.read ? '' : 'unread'}`;
+        el.onclick = () => { n.read = true; state.unreadNotifs = Math.max(0, state.unreadNotifs - 1); renderNotifBadge(); renderNotifList(); };
+        el.innerHTML = `<div class="notif-icon">${NOTIF_ICONS[n.type] || 'ℹ'}</div>
+            <div class="notif-body">
+                <div class="notif-title">${escapeHtml(n.title)}</div>
+                ${n.message ? `<div class="notif-msg">${escapeHtml(n.message)}</div>` : ''}
+                <div class="notif-time">${formatNotifTime(n.timestamp)}</div>
+            </div>`;
+        list.appendChild(el);
+    });
+    const unread = state.notifications.filter(n => !n.read).length;
+    $('notifFooterText').textContent = `${state.notifications.length} notification(s) · ${unread} unread`;
+}
+
+function formatNotifTime(date) {
+    const diff = (new Date() - new Date(date)) / 1000;
+    if (diff < 10) return 'just now';
+    if (diff < 60) return `${Math.floor(diff)}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return new Date(date).toLocaleDateString();
+}
+
+function toggleNotifPanel() { $('notifPanel').classList.toggle('active'); if ($('notifPanel').classList.contains('active')) renderNotifList(); }
+function markAllRead() { state.notifications.forEach(n => n.read = true); state.unreadNotifs = 0; renderNotifBadge(); renderNotifList(); }
+function clearNotifications() { if (!confirm('Clear all notifications?')) return; state.notifications = []; state.unreadNotifs = 0; renderNotifBadge(); renderNotifList(); }
+
+// ============================================================
+//  KITSUNE
+// ============================================================
+const kitsune = { el: null, bubbleEl: null, bubbleTimer: null, idleTimer: null, minimized: false, hidden: false, pokeCount: 0 };
+const KITSUNE_LINES = {
+    idle: ["Ready when you are! 🦊", "Risk is just certainty with a delay.", "Take your time, sharp eyes win.", "Which module will you try?", "A wise fox once said: verify everything."],
+    correct: ["Kitsune approves! ✨", "Foxy move! +{pts} points!", "Sharp as my tail! 🦊", "Brilliant!"],
+    wrong: ["Mmm, not quite...", "Even foxes stumble.", "Not this time. Try again!", "A missed step — but keep going!"],
+    poke: ["Hehe, that tickles! 🦊", "Yes? You needed wisdom?", "Boop! Now focus!", "A poke for good luck!"],
+    gameOver: ["The kitsune bows to the victors! 🏆", "Well played, risk-takers!"],
+};
+
+function initKitsune() {
+    kitsune.el = $('kitsuneSvg');
+    kitsune.bubbleEl = $('kitsuneBubble');
+    updateKitsuneVisibility();
+    kitsune.idleTimer = setInterval(() => {
+        if (kitsune.hidden || kitsune.minimized) return;
+        if (kitsune.bubbleEl.classList.contains('visible')) return;
+        if (!state.gameActive) kitsuneSay(randomFrom(KITSUNE_LINES.idle), 4000);
+    }, 22000);
+    setTimeout(() => kitsuneSay("Welcome! I'm Kitsu. Pick a module to begin 🦊", 5000), 1500);
+}
+
+function kitsuneSay(text, duration = 3500) {
+    if (kitsune.hidden || !state.settings.kitsuneEnabled) return;
+    kitsune.bubbleEl.textContent = text;
+    kitsune.bubbleEl.classList.add('visible');
+    clearTimeout(kitsune.bubbleTimer);
+    kitsune.bubbleTimer = setTimeout(() => kitsune.bubbleEl.classList.remove('visible'), duration);
+}
+
+function kitsuneReact(type, data = {}) {
+    if (!kitsune.el || kitsune.hidden || !state.settings.kitsuneEnabled) return;
+    kitsune.el.classList.remove('happy', 'sad', 'thinking', 'celebrate');
+    void kitsune.el.offsetWidth;
+    let line = randomFrom(KITSUNE_LINES[type] || KITSUNE_LINES.idle);
+    if (data.pts !== undefined) line = line.replace('{pts}', data.pts);
+    if (type === 'correct') { kitsune.el.classList.add('happy'); spawnSparkles(3); }
+    else if (type === 'wrong') kitsune.el.classList.add('sad');
+    else if (type === 'gameOver') { kitsune.el.classList.add('celebrate'); spawnSparkles(8); }
+    kitsuneSay(line, type === 'gameOver' ? 6000 : 3500);
+    setTimeout(() => kitsune.el?.classList.remove('happy', 'sad', 'thinking', 'celebrate'), 2500);
+}
+
+function spawnSparkles(count) {
+    if (!kitsune.el) return;
+    const wrap = kitsune.el;
+    const rect = wrap.getBoundingClientRect();
+    const emojis = ['✨', '⭐', '🌟', '💫', '🎉'];
+    for (let i = 0; i < count; i++) {
+        const s = document.createElement('div');
+        s.className = 'kitsune-sparkle';
+        s.textContent = randomFrom(emojis);
+        s.style.left = (rect.width / 2 + (Math.random() - 0.5) * 40) + 'px';
+        s.style.top = (rect.height / 2) + 'px';
+        s.style.setProperty('--dx', (Math.random() - 0.5) * 120 + 'px');
+        s.style.setProperty('--dy', (-Math.random() * 80 - 30) + 'px');
+        s.style.animationDelay = (i * 0.08) + 's';
+        wrap.appendChild(s);
+        setTimeout(() => s.remove(), 1500);
+    }
+}
+
+function kitsunePoke() { if (kitsune.hidden) return showKitsune(); kitsune.pokeCount++; kitsuneReact('happy'); kitsuneSay(randomFrom(KITSUNE_LINES.poke), 2500); }
+function minimizeKitsune() { kitsune.minimized = !kitsune.minimized; $('kitsuneContainer').classList.toggle('minimized', kitsune.minimized); }
+function hideKitsune() { kitsune.hidden = true; updateKitsuneVisibility(); }
+function showKitsune() { kitsune.hidden = false; kitsune.minimized = false; updateKitsuneVisibility(); kitsuneSay("I'm back! 🦊", 2500); }
+function updateKitsuneVisibility() {
+    const c = $('kitsuneContainer');
+    if (!state.settings.kitsuneEnabled || kitsune.hidden) c.classList.add('hidden');
+    else { c.classList.remove('hidden'); c.classList.toggle('minimized', kitsune.minimized); }
+}
+
+// ============================================================
+//  SOUND
+// ============================================================
+let audioCtx = null;
+function playTone(freq, dur = 0.12, type = 'sine') {
+    if (!state.settings.soundEnabled) return;
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        osc.type = type; osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(g); g.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + dur);
+    } catch (e) {}
+}
+const sfx = {
+    correct: () => { playTone(523, 0.1); setTimeout(() => playTone(659, 0.12), 100); },
+    wrong: () => playTone(180, 0.25, 'square'),
+    drop: () => playTone(440, 0.06),
+    tick: () => playTone(880, 0.04),
+    win: () => [523, 659, 784, 1047].forEach((f,i) => setTimeout(() => playTone(f, 0.15), i*120)),
+};
+
+// ============================================================
+//  TEAMS
+// ============================================================
+function renderTeams() {
+    const list = $('teamList');
+    list.innerHTML = '';
+    if (state.teams.length === 0) list.innerHTML = '<div style="text-align:center; padding:14px; color:var(--text-muted); font-size:11px;">Add teams to begin</div>';
+    state.teams.forEach((team, i) => {
+        const div = document.createElement('div');
+        div.className = `team-item ${team.active ? 'active' : ''}`;
+        div.innerHTML = `
+            <div class="team-color-dot" style="background:${TEAM_COLORS[i % TEAM_COLORS.length]}"></div>
+            <div class="team-info">
+                <span class="team-name">${escapeHtml(team.name)}</span>
+                <span class="team-score">Score: ${team.score}</span>
+            </div>
+            <div class="team-actions">
+                <button class="btn btn-tiny btn-success" onclick="setActive(${i})" title="Select">✓</button>
+                <button class="btn btn-tiny" onclick="renameTeam(${i})">✎</button>
+                <button class="btn btn-tiny btn-danger" onclick="deleteTeam(${i})">×</button>
+            </div>`;
+        list.appendChild(div);
+    });
+}
+
+function handleEnter(e) { if (e.key === 'Enter') addTeam(); }
+function addTeam() {
+    const input = $('newTeamName');
+    const name = input.value.trim();
+    if (!name) return;
+    if (state.teams.some(t => t.name.toLowerCase() === name.toLowerCase())) return notify('Duplicate', 'Team name already exists.', 'warning');
+    state.teams.push({ name, score: 0, active: state.teams.length === 0 });
+    input.value = '';
+    renderTeams(); saveState();
+}
+function setActive(i) { state.teams.forEach(t => t.active = false); state.teams[i].active = true; renderTeams(); }
+function renameTeam(i) {
+    const n = prompt('New name:', state.teams[i].name);
+    if (n && n.trim()) { state.teams[i].name = n.trim(); renderTeams(); saveState(); }
+}
+function deleteTeam(i) {
+    if (!confirm(`Delete "${state.teams[i].name}"?`)) return;
+    state.teams.splice(i, 1); renderTeams(); saveState();
+}
+function getActiveTeam() { return state.teams.find(t => t.active); }
+function addPoints(pts) { const a = getActiveTeam(); if (a) { a.score = Math.max(0, a.score + pts); renderTeams(); saveState(); } }
+
+// ============================================================
+//  MODULE NAVIGATION
+// ============================================================
+function renderModuleNav() {
+    const nav = $('moduleNav');
+    nav.innerHTML = '';
+    Object.entries(MODULES).forEach(([key, mod]) => {
+        const btn = document.createElement('button');
+        btn.className = `module-btn ${state.currentModule === key ? 'active' : ''}`;
+        btn.onclick = () => selectModule(key);
+        const count = state.content[key === 'matrix' ? 'quiz' : key]?.length || 0;
+        btn.innerHTML = `<span class="mod-icon">${mod.icon}</span><span>${mod.name}</span>${key !== 'matrix' ? `<span class="mod-meta">${count}</span>` : ''}`;
+        nav.appendChild(btn);
+    });
+}
+
+function selectModule(key) {
+    state.currentModule = key;
+    renderModuleNav();
+    document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+    const mod = MODULES[key];
+    $('mainTitle').textContent = mod.name;
+    $('mainSubtitle').textContent = mod.desc;
+    $('progressFill').style.width = '0%';
+
+    // Reset header actions
+    const h = $('headerActions');
+    h.innerHTML = '';
+
+    if (key === 'matrix') { $('viewMatrix').classList.add('active'); setupMatrixModule(); }
+    else if (key === 'quiz') { $('viewQuiz').classList.add('active'); setupQuizModule(); }
+    else if (key === 'sim') { $('viewSim').classList.add('active'); setupSimModule(); }
+    else if (key === 'drill') { $('viewDrill').classList.add('active'); setupDrillModule(); }
+
+    if (key !== 'matrix') {
+        const badge = document.createElement('div');
+        badge.className = 'scenario-badge';
+        badge.id = 'moduleBadge';
+        badge.textContent = 'Not Started';
+        h.appendChild(badge);
+
+        const startBtn = document.createElement('button');
+        startBtn.className = 'btn btn-accent';
+        startBtn.id = 'btnModuleStart';
+        startBtn.textContent = '▶ Start';
+        startBtn.onclick = () => startModule(key);
+        h.appendChild(startBtn);
+    }
+}
+
+// ============================================================
+//  MODULE: RISK MATRIX
+// ============================================================
+let matrixState = { scenarioActive: false, currentIdx: 0, stats: [] };
+const MATRIX_SCENARIOS = [
+    {
+        title: "Basic IT Infrastructure", difficulty: "easy",
+        desc: "You're securing a small company's IT infrastructure.",
+        risks: [
+            { id: "m1", title: "Unpatched Servers", desc: "Critical patches missing.", impact: 4, likelihood: 4, hint: "Outdated systems targeted by known exploits." },
+            { id: "m2", title: "Phishing Campaign", desc: "Mass emails target staff.", impact: 3, likelihood: 5, hint: "Everyone experiences phishing constantly." },
+            { id: "m3", title: "USB Drop Attack", desc: "Unknown USB sticks in parking.", impact: 2, likelihood: 2, hint: "Requires someone to plug it in." },
+        ]
+    },
+];
+
+function setupMatrixModule() {
+    renderMatrix();
+    $('riskContainer').innerHTML = '<div class="section-title">Unassigned Risks</div>';
+}
+
+function renderMatrix() {
+    const rows = $('gridRows'); rows.innerHTML = '';
+    for (let impact = 5; impact >= 1; impact--) {
+        const row = document.createElement('div');
+        row.className = 'grid-row';
+        for (let likelihood = 1; likelihood <= 5; likelihood++) {
+            const score = impact * likelihood;
+            const heat = Math.ceil(score / 2.5);
+            const zone = document.createElement('div');
+            zone.className = `drop-zone heat-${heat}`;
+            zone.id = `zone-i${impact}-l${likelihood}`;
+            zone.dataset.impact = impact;
+            zone.dataset.likelihood = likelihood;
+            zone.innerHTML = `<span class="drop-zone-label">${score}</span>`;
+            zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+            zone.addEventListener('drop', e => {
+                e.preventDefault(); zone.classList.remove('drag-over');
+                const card = document.getElementById(e.dataTransfer.getData('text/plain'));
+                if (card && card.dataset.submitted !== 'true') placeCardInZone(card, zone);
+            });
+            row.appendChild(zone);
+        }
+        rows.appendChild(row);
+    }
+}
+
+function placeCardInZone(card, zone) {
+    const lbl = zone.querySelector('.drop-zone-label'); if (lbl) lbl.style.display = 'none';
+    card.classList.add('placed-risk');
+    zone.appendChild(card);
+    const sel = card.querySelector('select'); if (sel) sel.value = `${zone.dataset.impact}-${zone.dataset.likelihood}`;
+}
+
+function loadMatrixScenario() {
+    const s = MATRIX_SCENARIOS[matrixState.currentIdx];
+    $('riskContainer').innerHTML = '<div class="section-title">Unassigned Risks</div>';
+    renderMatrix();
+    s.risks.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'risk-card';
+        card.id = r.id;
+        card.draggable = true;
+        card.dataset.correct = `${r.impact}-${r.likelihood}`;
+        card.innerHTML = `<div><strong>${escapeHtml(r.title)}</strong><div class="risk-desc">${escapeHtml(r.desc)}</div></div>
+            <div class="card-controls">
+                <select onchange="matrixMoveSelect('${r.id}', this.value)">
+                    <option value="">--</option>
+                    ${[5,4,3,2,1].flatMap(i => [1,2,3,4,5].map(l => `<option value="${i}-${l}">I${i}×L${l}=${i*l}</option>`)).join('')}
+                </select>
+                <button class="btn-hint" onclick="matrixHint('${r.id}')">💡</button>
+                <button class="btn-submit-risk" onclick="matrixSubmit('${r.id}')">✓</button>
+            </div>`;
+        card.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', r.id); setTimeout(() => card.classList.add('dragging'), 0); });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+        $('riskContainer').appendChild(card);
+    });
+}
+
+function matrixMoveSelect(id, val) {
+    if (!val) return;
+    const card = document.getElementById(id);
+    const [i, l] = val.split('-');
+    const zone = document.getElementById(`zone-i${i}-l${l}`);
+    if (zone) placeCardInZone(card, zone);
+}
+function matrixHint(id) {
+    const r = MATRIX_SCENARIOS[matrixState.currentIdx].risks.find(x => x.id === id);
+    const card = document.getElementById(id);
+    if (!card || !r || card.querySelector('.hint-text')) return;
+    const h = document.createElement('div');
+    h.className = 'hint-text'; h.textContent = `💡 ${r.hint}`;
+    card.querySelector('div').appendChild(h);
+    addPoints(-state.settings.hintCost);
+}
+function matrixSubmit(id) {
+    const card = document.getElementById(id);
+    const parent = card.closest('.drop-zone');
+    if (!parent) return notify('No Placement', 'Assign this risk first.', 'warning');
+    const given = `${parent.dataset.impact}-${parent.dataset.likelihood}`;
+    if (card.dataset.submitted === 'true') return;
+    card.dataset.submitted = 'true';
+    card.querySelector('.card-controls').style.display = 'none';
+    if (given === card.dataset.correct) {
+        card.classList.add('correct'); addPoints(state.settings.points); sfx.correct(); kitsuneReact('correct', { pts: state.settings.points });
+    } else {
+        card.classList.add('incorrect'); sfx.wrong(); kitsuneReact('wrong');
+    }
+}
+
+// ============================================================
+//  MODULE: QUIZ
+// ============================================================
+let quizState = { active: false, idx: 0, score: 0, total: 0, answered: false };
+
+function setupQuizModule() {
+    if (!quizState.active) {
+        $('quizPanel').innerHTML = `<div class="empty-state"><div class="big-icon">❓</div><div>Click <b>Start</b> to begin the quiz.<br>${state.content.quiz.length} questions ready.</div></div>`;
+    }
+}
+
+function startModule(key) {
+    if (key === 'quiz') startQuiz();
+    else if (key === 'sim') startSim();
+    else if (key === 'drill') startDrill();
+    else if (key === 'matrix') { matrixState.scenarioActive = true; loadMatrixScenario(); $('btnModuleStart')?.remove(); }
+}
+
+function startQuiz() {
+    if (state.content.quiz.length === 0) return notify('No Questions', 'Use the Admin editor to add questions.', 'warning');
+    quizState = { active: true, idx: 0, score: 0, total: state.content.quiz.length, answered: false };
+    $('btnModuleStart').textContent = '⏹ Restart';
+    renderQuiz();
+}
+
+function renderQuiz() {
+    if (quizState.idx >= state.content.quiz.length) return finishQuiz();
+    const q = state.content.quiz[quizState.idx];
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+    $('quizPanel').innerHTML = `
+        <div class="quiz-header">
+            <div class="quiz-progress">Question ${quizState.idx + 1} of ${state.content.quiz.length} · Score: ${quizState.score}</div>
+        </div>
+        <div class="quiz-q">${escapeHtml(q.question)}</div>
+        <div class="quiz-options" id="quizOptions">
+            ${q.options.map((o, i) => `<button class="quiz-opt" onclick="answerQuiz(${i})"><span class="opt-letter">${letters[i]}</span><span>${escapeHtml(o)}</span></button>`).join('')}
+        </div>`;
+    $('progressFill').style.width = `${(quizState.idx / state.content.quiz.length) * 100}%`;
+}
+
+function answerQuiz(idx) {
+    if (quizState.answered) return;
+    quizState.answered = true;
+    const q = state.content.quiz[quizState.idx];
+    const opts = document.querySelectorAll('.quiz-opt');
+    opts.forEach((o, i) => {
+        o.disabled = true;
+        if (i === q.correct) o.classList.add('correct');
+        else if (i === idx && idx !== q.correct) o.classList.add('incorrect');
+    });
+    const isCorrect = idx === q.correct;
+    if (isCorrect) { quizState.score += state.settings.points; addPoints(state.settings.points); sfx.correct(); kitsuneReact('correct', { pts: state.settings.points }); }
+    else { sfx.wrong(); kitsuneReact('wrong'); }
+
+    const fb = document.createElement('div');
+    fb.className = `quiz-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+    fb.innerHTML = `<b>${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</b>${q.explanation ? `<br>${escapeHtml(q.explanation)}` : ''}`;
+    $('quizPanel').appendChild(fb);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-primary';
+    nextBtn.style.cssText = 'align-self:flex-end; margin-top:10px;';
+    nextBtn.textContent = quizState.idx < state.content.quiz.length - 1 ? 'Next Question →' : 'See Results';
+    nextBtn.onclick = () => {
+        quizState.answered = false;
+        quizState.idx++;
+        renderQuiz();
+    };
+    $('quizPanel').appendChild(nextBtn);
+
+    setTimeout(() => {
+        quizState.answered = false;
+        quizState.idx++;
+        renderQuiz();
+    }, 5000);
+}
+
+function finishQuiz() {
+    $('progressFill').style.width = '100%';
+    $('quizPanel').innerHTML = `<div class="empty-state">
+        <div class="big-icon">🎉</div>
+        <h3 style="color:var(--text-dark); margin-bottom:8px;">Quiz Complete!</h3>
+        <div>You scored <b>${quizState.score}</b> points.</div>
+        <button class="btn btn-primary" style="margin-top:18px;" onclick="startQuiz()">🔄 Play Again</button>
+    </div>`;
+    notify('Quiz Complete', `Score: ${quizState.score} pts`, 'trophy');
+}
+
+// ============================================================
+//  MODULE: SCENARIO SIMULATOR
+// ============================================================
+let simState = { active: false, idx: 0, selected: new Set(), judgeScore: 0 };
+
+function setupSimModule() {
+    if (!simState.active) {
+        $('simPanel').innerHTML = `<div class="empty-state"><div class="big-icon">🎭</div><div>Click <b>Start</b> to begin.<br>${state.content.sim.length} scenarios ready.</div></div>`;
+    }
+}
+
+function startSim() {
+    if (state.content.sim.length === 0) return notify('No Scenarios', 'Use the Admin editor to add scenarios.', 'warning');
+    simState = { active: true, idx: 0, selected: new Set(), judgeScore: 0 };
+    $('btnModuleStart').textContent = '⏹ Restart';
+    renderSim();
+}
+
+function renderSim() {
+    if (simState.idx >= state.content.sim.length) return finishSim();
+    const s = state.content.sim[simState.idx];
+    simState.selected = new Set();
+    $('simPanel').innerHTML = `
+        <div class="incident-card">
+            <div class="inc-label">Incident ${simState.idx + 1} of ${state.content.sim.length}</div>
+            <h3>${escapeHtml(s.title)}</h3>
+            <p>${escapeHtml(s.desc)}</p>
+        </div>
+        <div style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Select the best responses:</div>
+        <div class="sim-responses" id="simResponses">
+            ${s.responses.map((r, i) => `
+                <label class="sim-resp" data-idx="${i}">
+                    <input type="checkbox" onchange="toggleSimResp(${i}, this.checked)">
+                    <div class="resp-body">
+                        <div class="resp-title">${escapeHtml(r.text)}</div>
+                    </div>
+                </label>`).join('')}
+        </div>
+        <div class="sim-actions">
+            <span style="font-size:12px; font-weight:800; color:var(--text-muted);">Judge Score:</span>
+            <input type="number" class="points-input" id="judgeScore" min="0" max="20" placeholder="0-20" value="0">
+            <span style="font-size:11px; color:var(--text-muted);">/ 20</span>
+            <button class="btn btn-primary" onclick="submitSim()" style="margin-left:auto;">Submit & Continue →</button>
+        </div>`;
+    $('progressFill').style.width = `${(simState.idx / state.content.sim.length) * 100}%`;
+}
+
+function toggleSimResp(i, checked) {
+    if (checked) simState.selected.add(i);
+    else simState.selected.delete(i);
+    document.querySelector(`.sim-resp[data-idx="${i}"]`).classList.toggle('selected', checked);
+}
+
+function submitSim() {
+    const judgeScore = Math.max(0, Math.min(20, parseInt($('judgeScore').value) || 0));
+    simState.judgeScore += judgeScore;
+    addPoints(judgeScore);
+    notify('Scenario Scored', `Judge awarded ${judgeScore}/20 pts`, judgeScore >= 14 ? 'success' : judgeScore >= 7 ? 'warning' : 'danger');
+    if (judgeScore >= 14) kitsuneReact('correct');
+    simState.idx++;
+    renderSim();
+}
+
+function finishSim() {
+    $('progressFill').style.width = '100%';
+    $('simPanel').innerHTML = `<div class="empty-state">
+        <div class="big-icon">🎭</div>
+        <h3 style="color:var(--text-dark); margin-bottom:8px;">Simulator Complete!</h3>
+        <div>Total judge score: <b>${simState.judgeScore}</b> pts</div>
+        <button class="btn btn-primary" style="margin-top:18px;" onclick="startSim()">🔄 Play Again</button>
+    </div>`;
+    notify('Simulator Complete', `Total: ${simState.judgeScore} pts`, 'trophy');
+}
+
+// ============================================================
+//  MODULE: DRILL
+// ============================================================
+let drillState = { active: false, idx: 0 };
+
+function setupDrillModule() {
+    if (!drillState.active) {
+        $('drillPanel').innerHTML = `<div class="empty-state"><div class="big-icon">🚨</div><div>Click <b>Start</b> to begin.<br>${state.content.drill.length} drills ready.</div></div>`;
+    }
+}
+
+function startDrill() {
+    if (state.content.drill.length === 0) return notify('No Drills', 'Use the Admin editor to add drills.', 'warning');
+    drillState = { active: true, idx: 0 };
+    $('btnModuleStart').textContent = '⏹ Restart';
+    renderDrill();
+}
+
+function renderDrill() {
+    if (drillState.idx >= state.content.drill.length) return finishDrill();
+    const d = state.content.drill[drillState.idx];
+    const teams = state.teams.length > 0 ? state.teams : [{ name: 'Team 1' }];
+    $('drillPanel').innerHTML = `
+        <div class="drill-section">
+            <h4>🚨 Incident ${drillState.idx + 1} of ${state.content.drill.length}</h4>
+            <div class="drill-field"><label>Incident Title</label><input type="text" id="drillTitle" value="${escapeHtml(d.title)}"></div>
+            <div class="drill-field"><label>Description</label><textarea id="drillDesc">${escapeHtml(d.desc)}</textarea></div>
+        </div>
+        <div class="drill-section">
+            <h4>👥 Assign Actions to Team Members</h4>
+            <div id="drillActions">
+                ${d.actions.map((a, i) => `
+                    <div class="team-action-row">
+                        <input type="text" class="field-input" placeholder="Member" value="${escapeHtml(a.member)}">
+                        <input type="text" class="field-input" placeholder="Action" value="${escapeHtml(a.action)}">
+                        <button class="btn btn-tiny btn-danger" onclick="this.parentElement.remove()">×</button>
+                    </div>`).join('')}
+            </div>
+            <button class="btn btn-small" style="margin-top:10px;" onclick="addDrillActionRow()">+ Add Action</button>
+        </div>
+        <div class="drill-section">
+            <h4>⏱️ Containment Time & 📝 Lessons Learned</h4>
+            <div class="drill-field">
+                <label>Containment Time (minutes)</label>
+                <div class="timer-inputs">
+                    <input type="number" id="drillMinutes" min="0" max="1440" value="${d.containmentMinutes || 30}">
+                    <span style="font-size:11px; color:var(--text-muted);">minutes to fully contain</span>
+                </div>
+            </div>
+            <div class="drill-field">
+                <label>Lessons Learned</label>
+                <textarea id="drillLessons" placeholder="What worked? What didn't? What should change?">${escapeHtml(d.lessons || '')}</textarea>
+            </div>
+        </div>
+        <button class="btn btn-primary" style="padding:14px; font-size:14px;" onclick="completeDrill()">✓ Complete Drill & Score</button>`;
+    $('progressFill').style.width = `${(drillState.idx / state.content.drill.length) * 100}%`;
+}
+
+function addDrillActionRow() {
+    const row = document.createElement('div');
+    row.className = 'team-action-row';
+    row.innerHTML = `<input type="text" class="field-input" placeholder="Member"><input type="text" class="field-input" placeholder="Action"><button class="btn btn-tiny btn-danger" onclick="this.parentElement.remove()">×</button>`;
+    $('drillActions').appendChild(row);
+}
+
+function completeDrill() {
+    const judge = prompt('Judge score for this drill (0-20):', '15');
+    const score = Math.max(0, Math.min(20, parseInt(judge) || 0));
+    addPoints(score);
+    notify('Drill Complete', `Judge awarded ${score}/20 pts`, score >= 14 ? 'success' : 'warning');
+    if (score >= 14) kitsuneReact('correct');
+    drillState.idx++;
+    renderDrill();
+}
+
+function finishDrill() {
+    $('progressFill').style.width = '100%';
+    $('drillPanel').innerHTML = `<div class="empty-state">
+        <div class="big-icon">🚨</div>
+        <h3 style="color:var(--text-dark); margin-bottom:8px;">All Drills Complete!</h3>
+        <button class="btn btn-primary" style="margin-top:14px;" onclick="startDrill()">🔄 Play Again</button>
+    </div>`;
+    notify('Drills Complete', 'All incident response drills finished', 'trophy');
+}
+
+// ============================================================
+//  ADMIN EDITOR
+// ============================================================
+let editorTab = 'quiz';
+
+function toggleAdmin() {
+    $('adminModal').classList.toggle('active');
+    if ($('adminModal').classList.contains('active')) { renderEditorTabs(); renderEditor(); }
+}
+
+function switchEditorTab(tab) {
+    editorTab = tab;
+    document.querySelectorAll('.editor-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    renderEditor();
+}
+
+function renderEditorTabs() {
+    $('countQuiz').textContent = state.content.quiz.length;
+    $('countSim').textContent = state.content.sim.length;
+    $('countDrill').textContent = state.content.drill.length;
+}
+
+function renderEditor() {
+    const body = $('editorBody');
+    if (editorTab === 'quiz') renderQuizEditor(body);
+    else if (editorTab === 'sim') renderSimEditor(body);
+    else if (editorTab === 'drill') renderDrillEditor(body);
+    else if (editorTab === 'data') renderDataEditor(body);
+    renderEditorTabs();
+}
+
+// --- QUIZ EDITOR ---
+function renderQuizEditor(body) {
+    body.innerHTML = `
+        <button class="btn btn-primary" onclick="showQuizForm()" style="margin-bottom:14px;">+ New Question</button>
+        <div id="quizFormContainer"></div>
+        <div id="quizList">${state.content.quiz.map((q, i) => `
+            <div class="editor-item">
+                <div class="item-body">
+                    <div class="item-title">${i + 1}. ${escapeHtml(q.question)}</div>
+                    <div class="item-meta">Options: ${q.options.length} · Correct: ${String.fromCharCode(65 + q.correct)}</div>
+                </div>
+                <div class="item-actions">
+                    <button class="btn btn-tiny" onclick="editQuiz(${i})">✎ Edit</button>
+                    <button class="btn btn-tiny btn-danger" onclick="deleteQuiz(${i})">× Delete</button>
+                </div>
+            </div>`).join('') || '<div class="empty-state">No questions yet. Click "+ New Question".</div>'}
+        </div>`;
+}
+
+function showQuizForm(idx = null) {
+    const q = idx !== null ? state.content.quiz[idx] : { question: '', options: ['', '', '', ''], correct: 0, explanation: '' };
+    $('quizFormContainer').innerHTML = `
+        <div class="editor-form" style="padding:16px; background:var(--surface); border-radius:var(--r-md); box-shadow:var(--shadow-out-sm); margin-bottom:14px;">
+            <div class="drill-field"><label>Question</label><input id="qFormQuestion" value="${escapeHtml(q.question)}"></div>
+            ${q.options.map((o, i) => `
+                <div class="drill-field" style="flex-direction:row; align-items:center; gap:8px;">
+                    <label style="min-width:80px;">Option ${String.fromCharCode(65 + i)}${i === q.correct ? ' ✓' : ''}</label>
+                    <input id="qFormOpt${i}" value="${escapeHtml(o)}" style="flex:1;">
+                    <input type="radio" name="correctOpt" value="${i}" ${i === q.correct ? 'checked' : ''} title="Mark correct">
+                </div>`).join('')}
+            <div class="drill-field"><label>Explanation (optional)</label><textarea id="qFormExplanation" style="min-height:50px;">${escapeHtml(q.explanation || '')}</textarea></div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-primary" onclick="saveQuiz(${idx})">💾 Save</button>
+                <button class="btn" onclick="$('quizFormContainer').innerHTML=''">Cancel</button>
+            </div>
+        </div>`;
+}
+
+function saveQuiz(idx) {
+    const question = $('qFormQuestion').value.trim();
+    const options = [0, 1, 2, 3].map(i => $('qFormOpt' + i).value.trim());
+    const correct = parseInt(document.querySelector('input[name="correctOpt"]:checked')?.value ?? '0');
+    const explanation = $('qFormExplanation').value.trim();
+    if (!question || options.some(o => !o)) return notify('Incomplete', 'Fill question and all 4 options.', 'warning');
+    const item = { id: idx !== null ? state.content.quiz[idx].id : uid(), question, options, correct, explanation };
+    if (idx !== null) state.content.quiz[idx] = item;
+    else state.content.quiz.push(item);
+    saveState(); renderEditor(); notify('Saved', 'Question saved.', 'success');
+}
+
+function editQuiz(i) { showQuizForm(i); }
+function deleteQuiz(i) { if (!confirm('Delete this question?')) return; state.content.quiz.splice(i, 1); saveState(); renderEditor(); }
+
+// --- SIM EDITOR ---
+function renderSimEditor(body) {
+    body.innerHTML = `
+        <button class="btn btn-primary" onclick="showSimForm()" style="margin-bottom:14px;">+ New Scenario</button>
+        <div id="simFormContainer"></div>
+        <div>${state.content.sim.map((s, i) => `
+            <div class="editor-item">
+                <div class="item-body">
+                    <div class="item-title">${i + 1}. ${escapeHtml(s.title)}</div>
+                    <div class="item-meta">${s.responses.length} responses · ${s.responses.filter(r => r.correct).length} correct</div>
+                </div>
+                <div class="item-actions">
+                    <button class="btn btn-tiny" onclick="editSim(${i})">✎</button>
+                    <button class="btn btn-tiny btn-danger" onclick="deleteSim(${i})">×</button>
+                </div>
+            </div>`).join('') || '<div class="empty-state">No scenarios yet.</div>'}
+        </div>`;
+}
+
+function showSimForm(idx = null) {
+    const s = idx !== null ? state.content.sim[idx] : { title: '', desc: '', responses: [{ text: '', correct: true }, { text: '', correct: false }] };
+    $('simFormContainer').innerHTML = `
+        <div class="editor-form" style="padding:16px; background:var(--surface); border-radius:var(--r-md); box-shadow:var(--shadow-out-sm); margin-bottom:14px;">
+            <div class="drill-field"><label>Title</label><input id="simFormTitle" value="${escapeHtml(s.title)}"></div>
+            <div class="drill-field"><label>Description</label><textarea id="simFormDesc" style="min-height:70px;">${escapeHtml(s.desc)}</textarea></div>
+            <label style="font-size:11.5px; font-weight:800; color:var(--text-muted);">Responses (check = correct)</label>
+            <div id="simFormResponses">
+                ${s.responses.map((r, i) => `
+                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+                        <input type="checkbox" class="simFormCorrect" ${r.correct ? 'checked' : ''}>
+                        <input class="field-input simFormText" value="${escapeHtml(r.text)}" placeholder="Response text" style="flex:1;">
+                        <button class="btn btn-tiny btn-danger" onclick="this.parentElement.remove()">×</button>
+                    </div>`).join('')}
+            </div>
+            <button class="btn btn-small" onclick="addSimResponseRow()" style="margin:6px 0;">+ Add Response</button>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="btn btn-primary" onclick="saveSim(${idx})">💾 Save</button>
+                <button class="btn" onclick="$('simFormContainer').innerHTML=''">Cancel</button>
+            </div>
+        </div>`;
+}
+
+function addSimResponseRow() {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; gap:8px; align-items:center; margin-bottom:6px;';
+    row.innerHTML = `<input type="checkbox" class="simFormCorrect"><input class="field-input simFormText" placeholder="Response text" style="flex:1;"><button class="btn btn-tiny btn-danger" onclick="this.parentElement.remove()">×</button>`;
+    $('simFormResponses').appendChild(row);
+}
+
+function saveSim(idx) {
+    const title = $('simFormTitle').value.trim();
+    const desc = $('simFormDesc').value.trim();
+    const responses = Array.from(document.querySelectorAll('#simFormResponses > div')).map(row => ({
+        text: row.querySelector('.simFormText').value.trim(),
+        correct: row.querySelector('.simFormCorrect').checked,
+    })).filter(r => r.text);
+    if (!title || !desc || responses.length < 2) return notify('Incomplete', 'Need title, desc, and at least 2 responses.', 'warning');
+    const item = { id: idx !== null ? state.content.sim[idx].id : uid(), title, desc, responses };
+    if (idx !== null) state.content.sim[idx] = item;
+    else state.content.sim.push(item);
+    saveState(); renderEditor(); notify('Saved', 'Scenario saved.', 'success');
+}
+
+function editSim(i) { showSimForm(i); }
+function deleteSim(i) { if (!confirm('Delete scenario?')) return; state.content.sim.splice(i, 1); saveState(); renderEditor(); }
+
+// --- DRILL EDITOR ---
+function renderDrillEditor(body) {
+    body.innerHTML = `
+        <button class="btn btn-primary" onclick="showDrillForm()" style="margin-bottom:14px;">+ New Drill</button>
+        <div id="drillFormContainer"></div>
+        <div>${state.content.drill.map((d, i) => `
+            <div class="editor-item">
+                <div class="item-body">
+                    <div class="item-title">${i + 1}. ${escapeHtml(d.title)}</div>
+                    <div class="item-meta">${d.actions.length} actions · ${d.containmentMinutes || 0} min containment</div>
+                </div>
+                <div class="item-actions">
+                    <button class="btn btn-tiny" onclick="editDrill(${i})">✎</button>
+                    <button class="btn btn-tiny btn-danger" onclick="deleteDrill(${i})">×</button>
+                </div>
+            </div>`).join('') || '<div class="empty-state">No drills yet.</div>'}
+        </div>`;
+}
+
+function showDrillForm(idx = null) {
+    const d = idx !== null ? state.content.drill[idx] : { title: '', desc: '', actions: [{ member: '', action: '' }], containmentMinutes: 30, lessons: '' };
+    $('drillFormContainer').innerHTML = `
+        <div class="editor-form" style="padding:16px; background:var(--surface); border-radius:var(--r-md); box-shadow:var(--shadow-out-sm); margin-bottom:14px;">
+            <div class="drill-field"><label>Incident Title</label><input id="drillFormTitle" value="${escapeHtml(d.title)}"></div>
+            <div class="drill-field"><label>Description</label><textarea id="drillFormDesc" style="min-height:70px;">${escapeHtml(d.desc)}</textarea></div>
+            <div class="drill-field"><label>Containment Minutes</label><input type="number" id="drillFormMinutes" value="${d.containmentMinutes || 30}" min="0" max="1440"></div>
+            <div class="drill-field"><label>Lessons Learned</label><textarea id="drillFormLessons" style="min-height:60px;">${escapeHtml(d.lessons || '')}</textarea></div>
+            <label style="font-size:11.5px; font-weight:800; color:var(--text-muted);">Team Actions</label>
+            <div id="drillFormActions">
+                ${d.actions.map(a => `
+                    <div style="display:flex; gap:8px; margin-bottom:6px;">
+                        <input class="field-input drillFormMember" value="${escapeHtml(a.member)}" placeholder="Member" style="flex:1;">
+                        <input class="field-input drillFormAction" value="${escapeHtml(a.action)}" placeholder="Action" style="flex:2;">
+                        <button class="btn btn-tiny btn-danger" onclick="this.parentElement.remove()">×</button>
+                    </div>`).join('')}
+            </div>
+            <button class="btn btn-small" onclick="addDrillFormActionRow()" style="margin:6px 0;">+ Add Action</button>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="btn btn-primary" onclick="saveDrill(${idx})">💾 Save</button>
+                <button class="btn" onclick="$('drillFormContainer').innerHTML=''">Cancel</button>
+            </div>
+        </div>`;
+}
+
+function addDrillFormActionRow() {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; gap:8px; margin-bottom:6px;';
+    row.innerHTML = `<input class="field-input drillFormMember" placeholder="Member" style="flex:1;"><input class="field-input drillFormAction" placeholder="Action" style="flex:2;"><button class="btn btn-tiny btn-danger" onclick="this.parentElement.remove()">×</button>`;
+    $('drillFormActions').appendChild(row);
+}
+
+function saveDrill(idx) {
+    const title = $('drillFormTitle').value.trim();
+    const desc = $('drillFormDesc').value.trim();
+    const containmentMinutes = parseInt($('drillFormMinutes').value) || 30;
+    const lessons = $('drillFormLessons').value.trim();
+    const actions = Array.from(document.querySelectorAll('#drillFormActions > div')).map(row => ({
+        member: row.querySelector('.drillFormMember').value.trim(),
+        action: row.querySelector('.drillFormAction').value.trim(),
+    })).filter(a => a.member || a.action);
+    if (!title || !desc || actions.length === 0) return notify('Incomplete', 'Need title, desc, and at least 1 action.', 'warning');
+    const item = { id: idx !== null ? state.content.drill[idx].id : uid(), title, desc, actions, containmentMinutes, lessons };
+    if (idx !== null) state.content.drill[idx] = item;
+    else state.content.drill.push(item);
+    saveState(); renderEditor(); notify('Saved', 'Drill saved.', 'success');
+}
+
+function editDrill(i) { showDrillForm(i); }
+function deleteDrill(i) { if (!confirm('Delete drill?')) return; state.content.drill.splice(i, 1); saveState(); renderEditor(); }
+
+// --- DATA EDITOR ---
+function renderDataEditor(body) {
+    body.innerHTML = `
+        <div class="editor-form">
+            <div class="drill-field">
+                <label>Export all content (JSON)</label>
+                <textarea id="dataExport" readonly style="min-height:180px; font-family:monospace; font-size:11px;">${JSON.stringify(state.content, null, 2)}</textarea>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="copyData()">📋 Copy JSON</button>
+                <button class="btn" onclick="downloadData()">⬇ Download</button>
+            </div>
+            <div class="drill-field" style="margin-top:16px;">
+                <label>Import content (paste JSON)</label>
+                <textarea id="dataImport" placeholder='{"quiz":[], "sim":[], "drill":[]}' style="min-height:120px; font-family:monospace; font-size:11px;"></textarea>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-accent" onclick="importData()">📥 Import</button>
+                <button class="btn btn-danger" onclick="resetContent()">⚠ Reset to Defaults</button>
+            </div>
+        </div>`;
+}
+
+function copyData() {
+    navigator.clipboard.writeText(JSON.stringify(state.content, null, 2));
+    notify('Copied', 'JSON copied to clipboard.', 'success');
+}
+function downloadData() {
+    const blob = new Blob([JSON.stringify(state.content, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'infoassurance_content.json';
+    link.click();
+    notify('Downloaded', 'Content saved as JSON.', 'success');
+}
+function importData() {
+    try {
+        const data = JSON.parse($('dataImport').value);
+        if (!data.quiz || !data.sim || !data.drill) throw new Error('Missing fields');
+        state.content = data;
+        saveState(); renderEditor();
+        notify('Imported', 'Content loaded successfully.', 'success');
+    } catch (e) { notify('Import Failed', e.message, 'danger'); }
+}
+function resetContent() {
+    if (!confirm('Reset ALL content to defaults? This cannot be undone.')) return;
+    state.content = defaultContent();
+    saveState(); renderEditor();
+    notify('Reset', 'Content restored to defaults.', 'success');
+}
+
+// ============================================================
+//  SCOREBOARD / SUMMARY
+// ============================================================
+function toggleScoreboard() {
+    $('scoreboardModal').classList.toggle('active');
+    if ($('scoreboardModal').classList.contains('active')) {
+        const list = $('modalScoreList');
+        const sorted = [...state.teams].sort((a, b) => b.score - a.score);
+        list.innerHTML = sorted.map((t, i) => `
+            <div class="scoreboard-row">
+                <span class="rank">${['🥇','🥈','🥉'][i] || (i+1)+'.'}</span>
+                <span style="flex:1;">${escapeHtml(t.name)}</span>
+                <span class="pts">${t.score} pts</span>
+            </div>`).join('') || '<div class="empty-state">No teams yet</div>';
+    }
+}
+
+function closeSummary() { $('summaryModal').classList.remove('active'); }
+
+// ============================================================
+//  SETTINGS
+// ============================================================
+function toggleSettings() {
+    $('settingsModal').classList.toggle('active');
+    if ($('settingsModal').classList.contains('active')) {
+        $('cfgPoints').value = state.settings.points;
+        $('cfgHintCost').value = state.settings.hintCost;
+        $('cfgTimer').value = Math.floor(state.timerLimit / 60);
+        $('cfgTurnBased').checked = state.turnBased;
+        $('cfgHints').checked = state.settings.hintsEnabled;
+        $('cfgSound').checked = state.settings.soundEnabled;
+        $('cfgToasts').checked = state.settings.toastsEnabled;
+        $('cfgKitsune').checked = state.settings.kitsuneEnabled;
+    }
+}
+function saveSettings() {
+    state.settings.points = Math.max(1, parseInt($('cfgPoints').value) || 10);
+    state.settings.hintCost = Math.max(0, parseInt($('cfgHintCost').value) || 0);
+    state.timerLimit = Math.max(0, (parseInt($('cfgTimer').value) || 0)) * 60;
+    state.turnBased = $('cfgTurnBased').checked;
+    state.settings.hintsEnabled = $('cfgHints').checked;
+    state.settings.soundEnabled = $('cfgSound').checked;
+    state.settings.toastsEnabled = $('cfgToasts').checked;
+    state.settings.kitsuneEnabled = $('cfgKitsune').checked;
+    $('soundBtn').innerText = state.settings.soundEnabled ? '🔊' : '🔇';
+    updateKitsuneVisibility(); toggleSettings(); saveState();
+    notify('Settings Saved', '', 'success', { toast: true, center: false });
+}
+
+function toggleSound() {
+    state.settings.soundEnabled = !state.settings.soundEnabled;
+    $('soundBtn').innerText = state.settings.soundEnabled ? '🔊' : '🔇';
+    saveState();
+}
+function toggleTheme() {
+    const h = document.documentElement;
+    h.setAttribute('data-theme', h.getAttribute('data-theme') === 'dark' ? '' : 'dark');
+    saveState();
+}
+
+function toggleSummary() { $('summaryModal').classList.toggle('active'); }
+
+// ============================================================
+//  RESET / EXPORT
+// ============================================================
+function resetAll() {
+    if (!confirm('Reset all scores and content state? Content stays intact.')) return;
+    state.teams.forEach(t => t.score = 0);
+    state.teams.forEach((t, i) => t.active = i === 0);
+    state.currentModule = null;
+    document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+    $('mainTitle').textContent = 'Select a Module';
+    $('mainSubtitle').textContent = 'Choose an activity from the sidebar to begin.';
+    $('headerActions').innerHTML = '';
+    $('progressFill').style.width = '0%';
+    renderTeams(); renderModuleNav();
+    closeAllModals();
+    notify('Reset Complete', 'Scores cleared.', 'info');
+}
+
+function exportScores() {
+    let csv = 'Team Name,Score\n';
+    state.teams.forEach(t => { csv += `"${t.name.replace(/"/g, '""')}",${t.score}\n`; });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'InfoAssurance_Scores.csv';
+    link.click();
+    notify('Exported', 'Scores saved as CSV.', 'success');
+}
+
+function closeAllModals() {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+}
+
+function beginIntro() {
+    $('introModal').classList.remove('active');
+}
+
+// ============================================================
+//  PERSISTENCE
+// ============================================================
+function saveState() {
+    try {
+        localStorage.setItem('ia_v3_state', JSON.stringify({
+            teams: state.teams,
+            settings: state.settings,
+            turnBased: state.turnBased,
+            timerLimit: state.timerLimit,
+            content: state.content,
+            notifications: state.notifications.slice(0, 30),
+            unreadNotifs: state.unreadNotifs,
+        }));
+    } catch (e) {}
+}
+function loadState() {
+    try {
+        const raw = localStorage.getItem('ia_v3_state');
+        if (!raw) { state.content = defaultContent(); return; }
+        const data = JSON.parse(raw);
+        if (Array.isArray(data.teams) && data.teams.length) {
+            state.teams = data.teams;
+            if (!state.teams.some(t => t.active)) state.teams[0].active = true;
+        }
+        if (data.settings) Object.assign(state.settings, data.settings);
+        if (typeof data.turnBased === 'boolean') state.turnBased = data.turnBased;
+        if (typeof data.timerLimit === 'number') state.timerLimit = data.timerLimit;
+        if (data.content && data.content.quiz) state.content = data.content;
+        else state.content = defaultContent();
+        if (Array.isArray(data.notifications)) state.notifications = data.notifications.map(n => ({ ...n, timestamp: new Date(n.timestamp) }));
+        if (typeof data.unreadNotifs === 'number') state.unreadNotifs = data.unreadNotifs;
+    } catch (e) { state.content = defaultContent(); }
+}
+
+// ============================================================
+//  TIMER (basic)
+// ============================================================
+function updateTimerDisplay() {
+    const el = $('gameTimer');
+    el.innerText = `${String(Math.floor(state.timeElapsed / 60)).padStart(2, '0')}:${String(state.timeElapsed % 60).padStart(2, '0')}`;
+}
+setInterval(() => { state.timeElapsed++; updateTimerDisplay(); }, 1000);
+
+// ============================================================
+//  KEYBOARD
+// ============================================================
+document.addEventListener('keydown', e => {
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+    if (e.key === 'Escape') closeAllModals();
+    if (e.key.toLowerCase() === 'k') kitsunePoke();
+    if (e.key.toLowerCase() === 'n') toggleNotifPanel();
+});
+
+// ============================================================
+//  INIT
+// ============================================================
+function init() {
+    loadState();
+    $('soundBtn').innerText = state.settings.soundEnabled ? '🔊' : '🔇';
+    renderMatrix();
+    renderModuleNav();
+    renderTeams();
+    renderNotifBadge();
+    renderNotifList();
+    updateTimerDisplay();
+    initKitsune();
+}
+
+init();
+</script>
+</body>
+</html>
